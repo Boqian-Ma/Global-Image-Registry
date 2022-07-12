@@ -4,7 +4,10 @@ This project is bootstraped with [Create React App](https://create-react-app.dev
 
 ## Getting started
 
-Run `npm start` to start the dev server.
+Clone the repo, install dependencies with either npm or yarn by running:
+"npm" or "yarn"
+
+Then run `npm start` to start the dev server.
 
 See all [available scripts](https://create-react-app.dev/docs/available-scripts).
 
