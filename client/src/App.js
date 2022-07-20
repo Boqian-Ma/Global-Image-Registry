@@ -2,18 +2,19 @@ import "./App.css";
 // import ImageUploadComponent from "./components/ImageUploadComponent";
 import React, { useState, useEffect } from "react";
 import Navbar from "./components/Navbar";
-import { TruffleContract } from "@truffle/contract";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import ImageCollection from "./components/ImageCollection";
 
-// import getWeb3 from "./utils/getWeb3";
+import Masonry from "./components/Masonry";
+
+import TruffleContract from "@truffle/contract";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Web3 from "web3";
 import ImageFactory from "./contracts/ImageFactory.json";
 
 import Home from "./pages";
 
 // import truffleConfig from "../../truffle/truffle-config";
-
-const truffleContract = require("@truffle/contract");
+// const truffleContract = require("@truffle/contract");
 
 function App() {
   const [state, setState] = useState({
@@ -22,13 +23,15 @@ function App() {
     accounts: null,
     contracts: {},
   });
+
   const [storageValue, setStorageValue] = useState(0);
 
   useEffect(() => {
     const initWeb3 = async () => {
       // get web3 provider
+      var web3Provider;
       if (window.ethereum) {
-        App.web3Provider = window.ethereum;
+        web3Provider = window.ethereum;
         try {
           // Request account access
           await window.ethereum.request({ method: "eth_requestAccounts" });
@@ -39,31 +42,36 @@ function App() {
       }
       // Legacy dapp browsers...
       else if (window.web3) {
-        App.web3Provider = window.web3.currentProvider;
+        web3Provider = window.web3.currentProvider;
       }
       // If no injected web3 instance is detected, fall back to Ganache
       else {
-        App.web3Provider = new Web3.providers.HttpProvider(
-          "http://localhost:7545"
-        );
+        web3Provider = new Web3.providers.HttpProvider("http://localhost:7545");
       }
       // set state
       const web3 = new Web3(App.web3Provider);
-      setState({ web3: web3, web3Provider: App.web3Provider });
-      return App.initContracts();
+      setState({ web3: web3, web3Provider: web3Provider });
+      // return App.initContracts();
     };
 
     const initContracts = () => {
       // const networkId = await web3.eth.net.getId();
       // const deployedNetwork = ImageFactory.networks[networkId];
-      var ImageFactoryArtifact = ImageFactory.json();
+      var ImageFactoryArtifact = ImageFactory;
+
+      var imageFactoryContract = TruffleContract(ImageFactoryArtifact);
+
       setState({
-        contracts: { ImageFactory: TruffleContract(ImageFactoryArtifact) },
+        contracts: { ImageFactory: imageFactoryContract },
       });
-      state.contracts.ImageFactory.setProvider(state.web3Provider);
+
+      setState({
+        contracts: { ImageFactory: { setProvider: state.web3Provider } },
+      });
     };
 
     initWeb3();
+    initContracts();
   }, []);
 
   const runExample = async () => {
@@ -72,13 +80,6 @@ function App() {
 
   return (
     <Router>
-      <div>
-        <nav>
-          <ul>
-            <li>state</li>
-          </ul>
-        </nav>
-      </div>
       <Navbar />
       <Routes>
         <Route path="/" exact component={Home} />
@@ -87,6 +88,10 @@ function App() {
         <Route path="/contact-us" component={Contact} />
         <Route path="/sign-up" component={SignUp} /> */}
       </Routes>
+
+      {/* <ImageCollection /> */}
+      <br></br>
+      <Masonry columnCount="4" gap="5" />
     </Router>
   );
 }
