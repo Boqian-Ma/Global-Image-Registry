@@ -1,6 +1,7 @@
 module.exports = {
   // See <http://truffleframework.com/docs/advanced/configuration>
   // for more about customizing your Truffle configuration!
+  contracts_build_directory: "../client/src/contracts",
   networks: {
     // compilers: {
     //   solc: {

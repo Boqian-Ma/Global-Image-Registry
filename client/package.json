@@ -6,12 +6,16 @@
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^13.2.0",
     "@testing-library/user-event": "^13.5.0",
+    "@truffle/contract": "^4.5.17",
     "crypto-js": "^4.1.1",
     "ipfs-http-client": "^48.2.2",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
     "react-error-overlay": "6.0.9",
+    "react-icons": "^4.4.0",
+    "react-router-dom": "^6.3.0",
     "react-scripts": "^4.0.3",
+    "styled-components": "^5.3.5",
     "web3": "^1.7.4"
   },
   "scripts": {
