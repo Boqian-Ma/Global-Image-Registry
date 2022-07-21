@@ -8,7 +8,14 @@ import {
   NavBtnLink,
 } from "./NavbarElements";
 
-const Navbar = () => {
+const Navbar = (props) => {
+  let button;
+  if (props.loginState != null) {
+    button = <NavBtnLink to="/signin">Wallet Connected</NavBtnLink>;
+  } else {
+    button = <NavBtnLink to="/signin"> Connect Wallet</NavBtnLink>;
+  }
+
   return (
     <>
       <Nav>
@@ -18,9 +25,9 @@ const Navbar = () => {
         </NavLink>
         <Bars />
         <NavMenu>
-          <NavLink to="/about" activeStyle>
+          {/* <NavLink to="/about" activeStyle>
             About
-          </NavLink>
+          </NavLink> */}
           {/* <NavLink to="/services" activeStyle>
             Services
           </NavLink>
@@ -33,8 +40,14 @@ const Navbar = () => {
           {/* Second Nav */}
           {/* <NavBtnLink to='/sign-in'>Sign In</NavBtnLink> */}
         </NavMenu>
+
         <NavBtn>
-          <NavBtnLink to="/signin">Connect Wallet</NavBtnLink>
+          {/* <NavBtnLink to="/signin">Connect Wallet</NavBtnLink> */}
+          {button}
+        </NavBtn>
+
+        <NavBtn>
+          <NavBtnLink to="/submit">Submit a Photo</NavBtnLink>
         </NavBtn>
       </Nav>
     </>
