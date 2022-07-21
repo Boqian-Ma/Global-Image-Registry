@@ -19,7 +19,9 @@ function Header(props) {
         Wallet Connected
       </Button>
     );
-    upLoadButton = <BasicModal name="Upload an Image"></BasicModal>;
+    upLoadButton = (
+      <BasicModal buttonType="outlined" name="Upload an Image"></BasicModal>
+    );
   } else {
     walletButton = (
       <Button variant="outlined" size="small">

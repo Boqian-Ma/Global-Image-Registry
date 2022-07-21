@@ -23,7 +23,7 @@ export default function BasicModal(props) {
 
   return (
     <div>
-      <Button variant="outlined" size="small" onClick={handleOpen}>
+      <Button variant={props.buttonType} size="small" onClick={handleOpen}>
         {props.name}
       </Button>
       <Modal

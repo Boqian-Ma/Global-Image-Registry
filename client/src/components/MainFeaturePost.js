@@ -5,9 +5,18 @@ import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Grid";
 import Link from "@mui/material/Link";
 import Box from "@mui/material/Box";
+import BasicModal from "./BasicModal";
 
 function MainFeaturedPost(props) {
   const { post } = props;
+
+  let upLoadButton;
+  if (props.loginState != null) {
+    upLoadButton = (
+      <BasicModal buttonType="contained" name="Upload an Image"></BasicModal>
+    );
+  } else {
+  }
 
   return (
     <Paper
@@ -60,9 +69,10 @@ function MainFeaturedPost(props) {
             <Typography variant="h5" color="inherit" paragraph>
               {post.description}
             </Typography>
-            <Link variant="subtitle1" href="#">
+            {/* <Link variant="subtitle1" href="#">
               {post.linkText}
-            </Link>
+            </Link> */}
+            {upLoadButton}
           </Box>
         </Grid>
       </Grid>

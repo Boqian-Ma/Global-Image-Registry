@@ -102,7 +102,7 @@ function App() {
     description: "Decentralised, Immutable, Transparent.",
     image: "https://source.unsplash.com/random",
     imageText: "GIR",
-    linkText: "Upload an Image Now",
+    // linkText: "Upload an Image Now",
   };
 
   const theme = createTheme();
@@ -129,7 +129,10 @@ function App() {
       <Container maxWidth="lg">
         <Header loginState={state.address} />
         <main>
-          <MainFeaturedPost post={mainFeaturedPost} />
+          <MainFeaturedPost
+            post={mainFeaturedPost}
+            loginState={state.address}
+          />
           {/* <Grid container spacing={4}>
               {featuredPosts.map((post) => (
                 <FeaturedPost key={post.title} post={post} />
