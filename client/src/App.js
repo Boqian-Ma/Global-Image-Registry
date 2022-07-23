@@ -79,6 +79,7 @@ function App() {
       // var ImageFactoryArtifact = ;
 
       var imageFactoryContract = TruffleContract(ImageFactory);
+      console.log(imageFactoryContract);
 
       setState({
         contracts: { ImageFactory: imageFactoryContract },
@@ -106,7 +107,6 @@ function App() {
   };
 
   const theme = createTheme();
-
   return (
     // <Router>
     //   <Navbar loginState={state.address} />
@@ -139,7 +139,7 @@ function App() {
               ))}
             </Grid> */}
         </main>
-        <Album />
+        <Album web3State={state}/>
       </Container>
       <Footer
         title="Footer"
