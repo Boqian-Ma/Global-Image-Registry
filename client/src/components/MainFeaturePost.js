@@ -5,8 +5,8 @@ import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Grid";
 import Link from "@mui/material/Link";
 import Box from "@mui/material/Box";
-import UploadImageModal from "./UploadImageModal";
 import ImageUploadComponent from "./ImageUploadComponent";
+import BasicModal from "./BasicModal";
 
 function MainFeaturedPost(props) {
   const { post } = props;
@@ -14,7 +14,7 @@ function MainFeaturedPost(props) {
   let upLoadButton;
   if (props.loginState != null) {
     upLoadButton = (
-      <UploadImageModal buttonType="contained" name="Upload an Image" component={<ImageUploadComponent />}/>
+      <BasicModal buttonType="contained" name="Upload an Image" Component={<ImageUploadComponent />}/>
     );
   } else {
   }

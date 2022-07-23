@@ -16,7 +16,7 @@ const style = {
   p: 4,
 };
 
-export default function BasicModal({buttonType, name, component, children}) {
+export default function BasicModal({buttonType, name, Component}) {
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -36,8 +36,7 @@ export default function BasicModal({buttonType, name, component, children}) {
           <Typography id="modal-modal-title" variant="h6" component="h2">
             Upload an Image to the Ethereum Blockchain
           </Typography>
-          {component}
-          {children}
+          {Component}
         </Box>
       </Modal>
     </div>

@@ -9,7 +9,6 @@ import Link from "@mui/material/Link";
 import BasicModal from "./BasicModal";
 import ImageUploadComponent from "./ImageUploadComponent";
 // import { Modal } from "@mui/material";
-import UploadImageModal from "./UploadImageModal";
 
 function Header(props) {
   let walletButton;
@@ -22,7 +21,7 @@ function Header(props) {
       </Button>
     );
     upLoadButton = (
-      <UploadImageModal buttonType="outlined" name="Upload an Image" component={<ImageUploadComponent />} />
+      <BasicModal buttonType="outlined" name="Upload an Image" Component={<ImageUploadComponent />} />
     );
   } else {
     walletButton = (
