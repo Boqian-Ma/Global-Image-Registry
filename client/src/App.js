@@ -62,41 +62,53 @@ function App() {
 
       // set state
       const web3 = new Web3(App.web3Provider);
-      setState({ web3: web3, web3Provider: web3Provider });
+      setState(prevState => ({ 
+        ...prevState,
+        web3: web3, 
+        web3Provider: web3Provider
+        }
+      ));
 
       // set account address
-      window.ethereum.request({ method: "eth_requestAccounts" }).then((res) => {
+       await window.ethereum.request({ method: "eth_requestAccounts" }).then((res) => {
         // Return the address of the wallet
-        setState({ address: res });
+        setState(prevState => ({ 
+          ...prevState,
+          address: res
+          }
+        ))
         // alert(res);
       });
       // return App.initContracts();
     };
-
-    const initContracts = () => {
+    initWeb3();
+  }, []);
+  
+  useEffect(() => {
+    const initContracts = async  () => {
       // const networkId = await web3.eth.net.getId();
       // const deployedNetwork = ImageFactory.networks[networkId];
       // var ImageFactoryArtifact = ;
-
+      if (!state.web3Provider) return;
       var imageFactoryContract = TruffleContract(ImageFactory);
-      console.log(imageFactoryContract);
-
-      setState({
-        contracts: { ImageFactory: imageFactoryContract },
-      });
-
-      setState({
-        contracts: { ImageFactory: { setProvider: state.web3Provider } },
-      });
+      imageFactoryContract.setProvider(state.web3Provider);
+      
+      setState(prevState => ({
+        ...prevState,
+        contracts: { ImageFactory : imageFactoryContract }
+      }))
+      //const instance = await imageFactoryContract.at("0x20B41bB30299aA159b5027994131eB1026cb9588");
+      
     };
-
-    initWeb3();
     initContracts();
-  }, []);
+  }, [state.web3Provider])
 
   const runExample = async () => {
     const { accounts, contract } = state;
   };
+  useEffect(() =>{
+    console.log(state)
+  }, [state])
 
   const mainFeaturedPost = {
     title: "Global Image Registry",
