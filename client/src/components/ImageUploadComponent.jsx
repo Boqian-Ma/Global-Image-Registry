@@ -15,8 +15,13 @@ const ipfsClient = createClient({
 function ImageUploadComponent() {
   const [currImage, setCurrImage] = useState(null);
   const [uploadedImage, setUploadedImage] = useState(null);
+  const [currTitle, setCurrTitle] = useState('');
+  const [currDescription, setCurrDescription] = useState('');
 
-  async function uploadImage() {
+  async function uploadImage(ev) {
+    ev.preventDefault();
+    if (!currImage || !currTitle || !currDescription) return;
+    console.log(`Title: ${currTitle}, Desc: ${currDescription}, img: ${currImage}`);
     try {
       const ipfsData = await uploadToIPFS(currImage, ipfsClient);
       console.log(ipfsData);
@@ -34,7 +39,7 @@ function ImageUploadComponent() {
             */
       setUploadedImage(ipfsData);
       const imageHash = hashImage(currImage);
-      createContract(ipfsData.path, imageHash);
+      createContract(currTitle, currDescription, ipfsData.path, imageHash);
     } catch (e) {
       console.log("Failed to add image to IPFS with error: ", e);
       return;
@@ -48,16 +53,30 @@ function ImageUploadComponent() {
   return (
     <div>
       <p>Please select an image</p>
+      <form>
+      <div>
+      <label> Title:
+        <input type="text" name="Title" onChange={(ev) => setCurrTitle(ev.target.value)} required/>
+      </label>
+      </div>
+      <div>
+      <label> Description:
+        <input type="text" name="description" onChange={(ev) => setCurrDescription(ev.target.value)} required/>
+      </label>
+      </div>
       <input
         type="file"
         onChange={(ev) => handleImageChange(ev)}
         accept={"image/*"}
-      />
-      <button onClick={uploadImage}>Upload</button>
+        required
+        />
+      <button type="submit" onClick={(ev) => uploadImage(ev)}>Upload</button>
+      </form>
       {uploadedImage && <p>{uploadImage}</p>}
       {uploadedImage && (
         <img src={`https://ipfs.io/ipfs/${uploadedImage.path}`} />
       )}
+      {/*Provide blockchain explorer link */}
     </div>
   );
 }

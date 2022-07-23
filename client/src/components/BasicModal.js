@@ -16,15 +16,15 @@ const style = {
   p: 4,
 };
 
-export default function BasicModal(props) {
+export default function BasicModal({buttonType, name, component, children}) {
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
   return (
     <div>
-      <Button variant={props.buttonType} size="small" onClick={handleOpen}>
-        {props.name}
+      <Button variant={buttonType} size="small" onClick={handleOpen}>
+        {name}
       </Button>
       <Modal
         open={open}
@@ -36,9 +36,8 @@ export default function BasicModal(props) {
           <Typography id="modal-modal-title" variant="h6" component="h2">
             Upload an Image to the Ethereum Blockchain
           </Typography>
-          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-            Insert upload logic
-          </Typography>
+          {component}
+          {children}
         </Box>
       </Modal>
     </div>
