@@ -1,13 +1,8 @@
-var ERC721 = artifacts.require("./ERC721.sol");
-var ImageFactory = artifacts.require("./ImageFactory.sol");
-var ImageOwnership = artifacts.require("./ImageOwnership.sol");
-var Ownable = artifacts.require("./Ownable.sol");
-var SafeMath = artifacts.require("./SafeMath");
+const ImageOwnership = artifacts.require("./ImageOwnership.sol");
+// Fairly sure we only need to include the highest level contract
+// All contracts inherited by ImageOwnership are included during compilation 
+// and we only need to deploy the ownership contract
 
 module.exports = function (deployer) {
-  deployer.deploy(ERC721);
-  deployer.deploy(ImageFactory);
   deployer.deploy(ImageOwnership);
-  deployer.deploy(Ownable);
-  deployer.deploy(SafeMath);
 };

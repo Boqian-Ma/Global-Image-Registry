@@ -12,7 +12,7 @@ const ipfsClient = createClient({
   protocol: "https",
 });
 
-function ImageUploadComponent() {
+function ImageUploadComponent({state}) {
   const [currImage, setCurrImage] = useState(null);
   const [uploadedImage, setUploadedImage] = useState(null);
   const [currTitle, setCurrTitle] = useState('');
@@ -39,7 +39,7 @@ function ImageUploadComponent() {
             */
       setUploadedImage(ipfsData);
       const imageHash = hashImage(currImage);
-      createContract(currTitle, currDescription, ipfsData.path, imageHash);
+      createContract(state, currTitle, currDescription, ipfsData.path, imageHash);
     } catch (e) {
       console.log("Failed to add image to IPFS with error: ", e);
       return;

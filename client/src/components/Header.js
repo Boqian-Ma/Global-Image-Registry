@@ -21,7 +21,7 @@ function Header(props) {
       </Button>
     );
     upLoadButton = (
-      <BasicModal buttonType="outlined" name="Upload an Image" Component={<ImageUploadComponent />} />
+      <BasicModal buttonType="outlined" name="Upload an Image" Component={<ImageUploadComponent  state={props.state}/>} />
     );
   } else {
     walletButton = (

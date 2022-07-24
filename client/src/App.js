@@ -19,7 +19,8 @@ import Header from "./components/Header";
 import Album from "./components/Album";
 
 // Contracts
-import ImageFactory from "./contracts/ImageFactory.json";
+//import ImageFactory from "./contracts/ImageFactory.json";
+import ImageOwnership from "./contracts/ImageOwnership.json"
 
 // Pages
 import Home from "./pages";
@@ -90,15 +91,16 @@ function App() {
       // const deployedNetwork = ImageFactory.networks[networkId];
       // var ImageFactoryArtifact = ;
       if (!state.web3Provider) return;
-      var imageFactoryContract = TruffleContract(ImageFactory);
-      imageFactoryContract.setProvider(state.web3Provider);
-      
+      var imageOwnershipContract = TruffleContract(ImageOwnership);
+      imageOwnershipContract.setProvider(state.web3Provider);
+      const contractInstance = await imageOwnershipContract.at("0x1949327f7012ED80bbBB874b380754eDF1385936");
+      console.log(contractInstance);
+      //console.log(await contractInstance.getNumImages());
       setState(prevState => ({
         ...prevState,
-        contracts: { ImageFactory : imageFactoryContract }
+        contracts: { ImageOwnership : contractInstance }
       }))
-      //const instance = await imageFactoryContract.at("0x20B41bB30299aA159b5027994131eB1026cb9588");
-      
+     
     };
     initContracts();
   }, [state.web3Provider])
@@ -139,11 +141,12 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Container maxWidth="lg">
-        <Header loginState={state.address} />
+        <Header loginState={state.address} state={state} />
         <main>
           <MainFeaturedPost
             post={mainFeaturedPost}
             loginState={state.address}
+            state={state}
           />
           {/* <Grid container spacing={4}>
               {featuredPosts.map((post) => (
