@@ -80,7 +80,7 @@ contract("ImageOwnership", (accounts) => {
             }
         })
         
-        it("Owner can transfer once approved approval", async () => {
+        it("Owner can transfer once approved", async () => {
             let accountCount = await contract.balanceOf(accountOne);
             assert.equal(accountCount, 2, "Owner still has two images before trying to transfer");
             await contract.transferFrom(accountOne, accountTwo, 0, { from: accountOne });
@@ -88,6 +88,123 @@ contract("ImageOwnership", (accounts) => {
             assert.equal(accountCount, 1, "Owner now has one images");
             const acc2 = await contract.balanceOf(accountTwo);
             assert.equal(acc2, 1, "Acc2 now has one image");
+        })
+    })
+    describe("Users can list, change prices and unlist images", async () => {
+        before("Add images to be sold", async () => {
+            await contract.createNewImage("img2", "hash3", "desc3", "ipfs3", { from: accountOne });
+            await contract.createNewImage("img3", "hash4", "desc4", "ipfs4", { from: accountOne });
+        })
+        
+        it("Cannot list unapproved image", async () => {
+            try {
+                await contract.listImage(2, 1, { from: accountOne })
+                assert(true, false, "Function failed to throw error");
+            } catch (e) {
+                assert(e);
+            }
+        })
+        it("Cannot change price unlisted image", async () => {
+            try {
+                await contract.changeListingPrice(2, 1, { from: accountOne })
+                assert(true, false, "Function failed to throw error");
+            } catch (e) {
+                assert(e);
+            }
+        }) 
+        it("Cannot unlist unlisted image", async () => {
+             try {
+                await contract.unlistImage(2, { from: accountOne })
+                assert(true, false, "Function failed to throw error");
+            } catch (e) {
+                assert(e);
+            } 
+        })
+
+        it("Cannot allow non-owner to list approved image", async () => {
+            await contract.approve(accountOne, 2, { from: accountOne });
+            try {
+                await contract.listImage(2, 1, { from: accountTwo })
+                assert(true, false, "Function failed to throw error");
+            } catch (e) {
+                assert(e)
+            }
+        })
+        it("Owner can list approved image", async () => {
+            await contract.listImage(2, 15, { from: accountOne })
+            const img2 = await contract.getImageDetails(2);
+            assert(img2.forSale == true);
+            assert(img2.price == 15);
+        })
+        
+        it("Cannot allow non-owner to change price", async () => {
+            try {
+                await contract.changeListingPrice(2, 5, { from: accountTwo })
+                assert(true, false, "Function failed to throw error");
+            } catch (e) {
+                assert(e)
+            }
+        })
+        it("Cannot allow non-owner to unlist image", async () => {
+            try {
+                await contract.unlistImage(2, { from: accountTwo })
+                assert(true, false, "Function failed to throw error");
+            } catch (e) {
+                assert(e)
+            }
+        })
+        it("Owner can change price", async () => {
+            await contract.changeListingPrice(2, 50, { from: accountOne })
+            const img2 = await contract.getImageDetails(2);
+            assert(img2.price == 50);
+        })
+        it("Owner can unlist image", async () => {
+            await contract.unlistImage(2, {from: accountOne})
+            const img2 = await contract.getImageDetails(2);
+            assert(img2.forSale == false);
+        })
+    })
+    
+    describe("Users can sell images", async () => {
+        // for all scenarios account 1 is the seller, account 2 is the buyer
+        before("List image", async () => {
+            await contract.listImage(2, 50, { from: accountOne})
+        })
+        
+        it("Buyer cannot purchase unlisted image", async () => {
+            try {
+                await contract.buyImage(3, { from: accountTwo, value: 51})
+                assert(true, false, "Function failed to fail")
+            } catch (err) {
+                assert(err);
+            }
+        })
+        
+        it("Buyer cannot purchase image for less than asking price", async () => {
+            try {
+                await contract.buyImage(2, { from: accountTwo, value: 5})
+                assert(true, false, "Function failed to fail")
+            } catch (err) {
+                assert(err);
+            }
+        })
+        
+        it("Buyers can purchase images", async () => {
+            const c1 = await contract.balanceOf(accountOne);
+            const c2 = await contract.balanceOf(accountTwo);
+            const bal1 = await web3.eth.getBalance(accountOne);
+            const bal2 = await web3.eth.getBalance(accountTwo);
+            await contract.buyImage(2, { from: accountTwo, value: 50 })
+            // check ownership is transfered, 
+            // no longer for sale
+            const img = await contract.getImageDetails(2);
+            assert(img.forSale == false, "Image is still for sale"); 
+            assert(await contract.getImageOwner(2) == accountTwo, "Ownership has not changed"); 
+            assert(c1, await contract.balanceOf(accountOne)-1, "Balance not updated for seller")
+            assert(c2, await contract.balanceOf(accountTwo)+1, "Balance not updated for buyer")
+            // balance decreased/increased
+            assert(bal1, await web3.eth.getBalance(accountOne) +  50, "Seller was not compensated")
+            assert(bal2, await web3.eth.getBalance(accountTwo) -  50, "Buyer did not spend eth")
         })
     })
 })

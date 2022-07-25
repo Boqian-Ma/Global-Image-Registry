@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.4.22 <0.9.0;
+
+pragma solidity >=0.5.1 <=0.8.15;
 import "./Ownable.sol";
 
 contract ImageFactory is Ownable {
@@ -19,6 +20,8 @@ contract ImageFactory is Ownable {
         string ipfs;
         // string[] tags;
         uint32 creationTime;
+        bool forSale;
+        uint256 price; // price is measured in wei
     }
 
     struct ImageIndex {
@@ -44,7 +47,9 @@ contract ImageFactory is Ownable {
     ) internal {
         uint32 creationTime = uint32(block.timestamp);
 
-        images.push(Image(_name, _description, _hash, _ipfs, creationTime));
+        images.push(
+            Image(_name, _description, _hash, _ipfs, creationTime, false, 0)
+        );
         // uint id = images.push(Image(_name, _description,  _hash, _ipfs, creationTime)) - 1;
 
         emit NewImage(
