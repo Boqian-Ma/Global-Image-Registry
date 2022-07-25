@@ -13,6 +13,14 @@ contract ImageFactory is Ownable {
         uint32 creationTime
     );
 
+    /*
+    struct Licence {
+        type, enum that represents different, lifespan etc
+        address owner;
+        date? expiry;
+        uint256 value?;
+    }
+    */
     struct Image {
         string title;
         string description;
@@ -22,6 +30,7 @@ contract ImageFactory is Ownable {
         uint32 creationTime;
         bool forSale;
         uint256 price; // price is measured in wei
+        //Licence [] licences;
     }
 
     struct ImageIndex {
@@ -40,21 +49,21 @@ contract ImageFactory is Ownable {
     mapping(bytes32 => ImageIndex) public imageHashToIndex;
 
     function _createImage(
-        string memory _name,
-        bytes32 _hash,
+        string memory _title,
         string memory _description,
+        bytes32 _hash,
         string memory _ipfs
     ) internal {
         uint32 creationTime = uint32(block.timestamp);
 
         images.push(
-            Image(_name, _description, _hash, _ipfs, creationTime, false, 0)
+            Image(_title, _description, _hash, _ipfs, creationTime, false, 0)
         );
         // uint id = images.push(Image(_name, _description,  _hash, _ipfs, creationTime)) - 1;
 
         emit NewImage(
             numImages,
-            _name,
+            _title,
             _description,
             _hash,
             _ipfs,
@@ -67,10 +76,10 @@ contract ImageFactory is Ownable {
     }
 
     function createNewImage(
-        string memory _name,
+        string memory _title,
+        string memory _description,
         string memory _hash,
-        string memory _ipfs,
-        string memory _description
+        string memory _ipfs
     ) public {
         // comparing strings in solidity requires both to be hashed to bytes first, then compared
         // storing the hash as the bytes object reduces number of times we will need to hash strings
@@ -79,7 +88,7 @@ contract ImageFactory is Ownable {
             imageHashToIndex[imageHashBytes].exists == false,
             "Image already exists in contract"
         );
-        _createImage(_name, imageHashBytes, _description, _ipfs);
+        _createImage(_title, _description, imageHashBytes, _ipfs);
     }
 
     function getNumImages() public view returns (uint256) {

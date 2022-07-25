@@ -123,16 +123,27 @@ contract ImageOwnership is ImageFactory, ERC721X {
             string memory title,
             string memory description,
             bool forSale,
-            uint256 price
+            uint256 price,
+            string memory ipfs
         )
     {
         Image memory retImg = images[_tokenId];
         forSale = images[_tokenId].forSale;
-        return (retImg.title, retImg.description, forSale, retImg.price);
+        return (
+            retImg.title,
+            retImg.description,
+            forSale,
+            retImg.price,
+            retImg.ipfs
+        );
     }
 
     function getImageOwner(uint256 _tokenId) public view returns (address) {
         return imageToOwner[_tokenId];
+    }
+
+    function isImageListed(uint256 _tokenId) public view returns (bool) {
+        return images[_tokenId].forSale == true;
     }
 
     modifier onlyOwnerOf(uint256 _imageId) {
@@ -146,7 +157,7 @@ contract ImageOwnership is ImageFactory, ERC721X {
     }
 
     modifier imageIsListed(uint256 _imageId) {
-        require(images[_imageId].forSale == true, "Image is not for sale");
+        require(isImageListed(_imageId), "Image is not for sale");
         _;
     }
 }

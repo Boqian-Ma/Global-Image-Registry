@@ -25,12 +25,22 @@ function Copyright() {
   );
 }
 
-const cards = [0, 1, 2, 3, 4, 5];
-const myCards = [0,1,2];
-
 const theme = createTheme();
 
 export default function Album({web3State}) {
+  const [imageNums, setImageNums] = useState([]);
+  const [myCards, setMyCards] = useState([]);
+  useEffect(() => {
+    const initAlbum = async () => {
+      const numImgs = await web3State.contracts.ImageOwnership.methods.getNumImages().call({ from: web3State.address });
+      const temp = [];
+      for (let i =0; i < numImgs; ++i) {
+        temp.push(i);
+      }
+      setImageNums(temp);
+    }
+    initAlbum();
+  }, [web3State])
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -38,9 +48,9 @@ export default function Album({web3State}) {
         <Container maxWidth="md">
           {/* End hero unit */}
           <Grid container spacing={4}>
-            {cards.map((card) => (
+            {imageNums.map((card) => (
               <Grid item key={card} xs={12} sm={6} md={4}>
-                <GIRImageCard id={card}/>
+                <GIRImageCard id={card} state={web3State}/>
               </Grid>
             ))}
           </Grid>
@@ -50,7 +60,7 @@ export default function Album({web3State}) {
             <Grid container spacing={4}>
             {myCards.map((card) => (
               <Grid item key={card} xs={12} sm={6} md={4}>
-                <GIRImageCard id={card} userAddress={web3State.address}/>
+                <GIRImageCard id={card} state={web3State}/>
               </Grid>
             ))}
           </Grid>

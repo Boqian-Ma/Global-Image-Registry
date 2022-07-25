@@ -39,7 +39,7 @@ function ImageUploadComponent({state}) {
             */
       setUploadedImage(ipfsData);
       const imageHash = hashImage(currImage);
-      createContract(state, currTitle, currDescription, ipfsData.path, imageHash);
+      createContract(state, currTitle, currDescription, imageHash, ipfsData.path);
     } catch (e) {
       console.log("Failed to add image to IPFS with error: ", e);
       return;

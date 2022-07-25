@@ -33,10 +33,11 @@ function App() {
     web3: null,
     web3Provider: null,
     address: null,
-    contracts: {},
+    contracts: null,
   });
+  
+  const [web3Ready, setWeb3Ready] = useState(false)
 
-  const [storageValue, setStorageValue] = useState(0);
 
   useEffect(() => {
     const initWeb3 = async () => {
@@ -62,7 +63,7 @@ function App() {
       }
 
       // set state
-      const web3 = new Web3(App.web3Provider);
+      const web3 = new Web3(web3Provider);
       setState(prevState => ({ 
         ...prevState,
         web3: web3, 
@@ -73,9 +74,10 @@ function App() {
       // set account address
        await window.ethereum.request({ method: "eth_requestAccounts" }).then((res) => {
         // Return the address of the wallet
+        console.log(typeof res[0])
         setState(prevState => ({ 
           ...prevState,
-          address: res
+          address: res[0]
           }
         ))
         // alert(res);
@@ -87,27 +89,27 @@ function App() {
   
   useEffect(() => {
     const initContracts = async  () => {
-      // const networkId = await web3.eth.net.getId();
-      // const deployedNetwork = ImageFactory.networks[networkId];
-      // var ImageFactoryArtifact = ;
       if (!state.web3Provider) return;
-      var imageOwnershipContract = TruffleContract(ImageOwnership);
-      imageOwnershipContract.setProvider(state.web3Provider);
-      const contractInstance = await imageOwnershipContract.at("0x1949327f7012ED80bbBB874b380754eDF1385936");
-      console.log(contractInstance);
-      //console.log(await contractInstance.getNumImages());
+      const { abi } = ImageOwnership;
+      const networkID = await state.web3.eth.net.getId();
+      console.log("NetworkId", networkID)
+      const imageOwnershipContract = new state.web3.eth.Contract(abi,"0x1f8A69C6BFd0d4cB06542E7bEa25C71F45D18d03")
+      console.log(imageOwnershipContract);
+      const numImg = await imageOwnershipContract.methods.getNumImages().call({ from: state.address })
+      console.log("numImg: ", numImg)
       setState(prevState => ({
         ...prevState,
-        contracts: { ImageOwnership : contractInstance }
+        contracts: { ImageOwnership : imageOwnershipContract }
       }))
-     
     };
     initContracts();
   }, [state.web3Provider])
-
-  const runExample = async () => {
-    const { accounts, contract } = state;
-  };
+  
+  useEffect(() => {
+    if (state.web3 === null || state.web3Provider === null || state.address === null || state.contracts === null) return
+    setWeb3Ready(true);
+  }, [state.contracts])
+ 
   useEffect(() =>{
     console.log(state)
   }, [state])
@@ -140,7 +142,7 @@ function App() {
     // </Router>
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Container maxWidth="lg">
+      {web3Ready === true && <Container maxWidth="lg">
         <Header loginState={state.address} state={state} />
         <main>
           <MainFeaturedPost
@@ -155,7 +157,7 @@ function App() {
             </Grid> */}
         </main>
         <Album web3State={state}/>
-      </Container>
+      </Container>}
       <Footer
         title="Footer"
         description="Something here to give the footer a purpose!"

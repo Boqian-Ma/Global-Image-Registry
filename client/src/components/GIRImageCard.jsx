@@ -8,21 +8,52 @@ import { Typography } from "@mui/material";
 import React, {useState, useEffect } from 'react';
 
 
-function GIRImageCard({id, userAddress}) {
-    useEffect(() => {
-        //on component mount read image from contract image array
-    }, [])
-    // const [title, setTitle] = useState('');
-    // const [desc, setDesc] = useState('');
-    // const [ipfsAddr, setIpfsAddr] = useState(null);
+function GIRImageCard({id, state}) {
+    const [title, setTitle] = useState('');
+    const [desc, setDesc] = useState('');
+    const [ipfsAddr, setIpfsAddr] = useState(null);
     const [owner, setOwner] = useState('');
+    const [isApproved, setIsApproved] = useState(false);
+    const [isListed, setIsListed] = useState(false);
     
-    function purchaseImage() {
+   useEffect(() => {
+      const initCard = async () => {
+        if (!state.address) return 
+        const cardDetails = await state.contracts.ImageOwnership.methods.getImageDetails(id).call({ from: state.address });
+        setTitle(cardDetails.title);
+        setDesc(cardDetails.description)
+        const owner = await state.contracts.ImageOwnership.methods.getImageOwner(id).call({ from: state.address})
+        setOwner(owner.toLowerCase());
+        setIpfsAddr(cardDetails.ipfs);
+        setIsApproved(await state.contracts.ImageOwnership.methods.isTokenApproved(id).call( {from: state.address }))
+        setIsListed(await state.contracts.ImageOwnership.methods.isImageListed(id).call( {from: state.address }))
+        console.log(cardDetails)
+      }
+      initCard();
+   }, [id, state])
+    async function purchaseImage() {
 
     }
     
-    function licenceImage() {
+    async function licenceImage() {
 
+    }
+    
+    async function approve() {
+      await state.contracts.ImageOwnership.methods.approve(state.address, id).send({ from: state.address })
+      setIsApproved(await state.contracts.ImageOwnership.methods.isTokenApproved(id).call( {from: state.address }))
+    }
+    async function transfer() {
+      // signature transfer(address from, address to, uint256 tokenId)
+    }
+    async function sell() {
+      //need use to input sell value then 
+      const price = 100;
+      await state.contracts.ImageOwnership.methods.listImage(id, price).send({ from: state.address })
+    }
+    
+    async function changePrice() {
+        // function sig, (uint tokenId, uint price)
     }
     return (
         <Card
@@ -32,26 +63,35 @@ function GIRImageCard({id, userAddress}) {
             flexDirection: "column",
           }}
         >
-          <CardMedia
+          {ipfsAddr != null && <CardMedia
             component="img"
-            image="https://source.unsplash.com/random"
+            image={`https://ipfs.io/ipfs/${ipfsAddr}`}
             alt="random"
-          />
+          />}
           <CardContent sx={{ flexGrow: 1 }}>
             <Typography gutterBottom variant="h5" component="h2">
-              Image Title {id}
+              {title}
             </Typography>
-            <Typography>Description</Typography>
+            <Typography>{desc}</Typography>
             <Typography>Contract Address</Typography>
-            <Typography>{userAddress}</Typography>
+            <Typography>{owner}</Typography>
           </CardContent>
-          {userAddress !== owner && <CardActions>
+          {state.address !== owner && <CardActions>
             <Button variant="outlined" size="small" onClick={purchaseImage}>
               Purchase
             </Button>
             <Button variant="outlined" size="small" onClick={licenceImage}>
               Licence
             </Button>
+          </CardActions>}
+          {state.address === owner && <CardActions>
+            {!isApproved && <Button variant="contained" size = "small" onClick={approve} >Approve</Button>}
+            <Button variant="outlined" size="small" onClick={transfer}>
+              Transfer
+            </Button>
+            {isApproved && <Button variant="outlined" size="small" onClick={isListed ? () => changePrice() : () => sell()}>
+              {isListed ? "changePrice" : "Sell"}
+            </Button>}
           </CardActions>}
         </Card>
     )

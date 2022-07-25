@@ -15,14 +15,14 @@ contract("ImageOwnership", (accounts) => {
         })
         
         it("Can add an image", async () => {
-            await contract.createNewImage("title", "hash", "description", "cid");
+            await contract.createNewImage("title", "description", "hash", "cid");
             const numImages = await contract.getNumImages();
             assert.equal(numImages, 1, "Image was successfully added");
         })
 
         it("Cannot add duplicate image", async () => {
             try {
-                await contract.createNewImage("New Title", "hash", "Different description", "Diff cid");
+                await contract.createNewImage("New Title", "Different description", "hash", "Diff cid");
             } catch (err) {
                 assert(err); 
             }
@@ -40,7 +40,7 @@ contract("ImageOwnership", (accounts) => {
     
     describe("Users can approve and transfer ownership of images", async () => {
         before("Establish scenario", async() => {
-            await contract.createNewImage("img2", "hash2", "desc2", "ipfs2", { from: accountOne });
+            await contract.createNewImage("img2", "desc2", "hash2", "ipfs2", { from: accountOne });
         })
         
         it("Does not allow owner to transfer before approval", async () => {
@@ -92,9 +92,9 @@ contract("ImageOwnership", (accounts) => {
     })
     describe("Users can list, change prices and unlist images", async () => {
         before("Add images to be sold", async () => {
-            await contract.createNewImage("img2", "hash3", "desc3", "ipfs3", { from: accountOne });
-            await contract.createNewImage("img3", "hash4", "desc4", "ipfs4", { from: accountOne });
-        })
+            await contract.createNewImage("img2", "desc3", "hash3", "ipfs3", { from: accountOne });
+            await contract.createNewImage("img3", "desc4", "hash4", "ipfs4", { from: accountOne });
+        4})
         
         it("Cannot list unapproved image", async () => {
             try {
