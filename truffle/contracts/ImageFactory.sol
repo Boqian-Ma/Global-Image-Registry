@@ -12,7 +12,10 @@ contract ImageFactory is Ownable {
         string ipfs,
         uint32 creationTime
     );
-
+    
+    //HM: Note – I don't think it's necessary to have the license struct unless we do fixed-term licenses. Instead we can just say all licenses are unlimited
+    //let's discuss
+    
     /*
     struct Licence {
         type, enum that represents different, lifespan etc
@@ -22,6 +25,8 @@ contract ImageFactory is Ownable {
     }
     */
     struct Image {
+        address payable owner;                                      //HM: added owner variable
+        uint IdNum;                                                 //HM: added IdNum
         string title;
         string description;
         bytes32 hash;
@@ -29,8 +34,11 @@ contract ImageFactory is Ownable {
         // string[] tags;
         uint32 creationTime;
         bool forSale;
+        bool forLicense;                                            //HM: added bool for whether image is listed for license
         uint256 price; // price is measured in wei
-        //Licence [] licences;
+        uint256 priceLicense                                        //HM: added price for image licensing (vs price of outright buying the copyright)
+        mapping(uint256 => License) private licenseHistory;         //HM: added mapping for license history
+        uint256 numLicenses;                                        //HM: added for storing # of licenses on image
     }
 
     struct ImageIndex {
