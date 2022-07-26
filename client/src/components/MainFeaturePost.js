@@ -14,7 +14,7 @@ function MainFeaturedPost(props) {
   let upLoadButton;
   if (props.loginState != null) {
     upLoadButton = (
-      <BasicModal buttonType="contained" name="Upload an Image" Component={<ImageUploadComponent state={props.state} />}/>
+      <BasicModal buttonType="contained" name="Upload an Image" Component={<ImageUploadComponent state={props.state} setState={props.setState} />} title="Upload an Image to the Ethereum Blockchain"/>
     );
   } else {
   }

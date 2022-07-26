@@ -1,7 +1,6 @@
 import { useState } from "react";
 import React from "react";
 import { uploadToIPFS, hashImage } from "../utils/helpers";
-import { createContract } from "../utils/blockchain";
 
 /// Use infura gateway to avoid having to run local node,
 /// Gateway is currently free however will eventually require auth and have data limits
@@ -12,7 +11,7 @@ const ipfsClient = createClient({
   protocol: "https",
 });
 
-function ImageUploadComponent({state}) {
+function ImageUploadComponent({state, setState}) {
   const [currImage, setCurrImage] = useState(null);
   const [uploadedImage, setUploadedImage] = useState(null);
   const [currTitle, setCurrTitle] = useState('');
@@ -38,8 +37,11 @@ function ImageUploadComponent({state}) {
             }
             */
       setUploadedImage(ipfsData);
-      const imageHash = hashImage(currImage);
-      createContract(state, currTitle, currDescription, imageHash, ipfsData.path);
+      const uploadImage = async (hash) => {
+        await state.contracts.ImageOwnership.methods.createNewImage(currTitle, currDescription, hash, ipfsData.path).send({ from: state.address });
+
+      }
+      await hashImage(currImage, uploadImage);
     } catch (e) {
       console.log("Failed to add image to IPFS with error: ", e);
       return;
