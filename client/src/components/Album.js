@@ -28,16 +28,20 @@ function Copyright() {
 const theme = createTheme();
 
 export default function Album({web3State}) {
+  //console.log("Album state", web3State)
   const [imageNums, setImageNums] = useState([]);
-  const [myCards, setMyCards] = useState([]);
   useEffect(() => {
     const initAlbum = async () => {
-      const numImgs = await web3State.contracts.ImageOwnership.methods.getNumImages().call({ from: web3State.address });
-      const temp = [];
-      for (let i =0; i < numImgs; ++i) {
-        temp.push(i);
+      try {
+        const numImgs = await web3State.contracts.ImageOwnership.methods.getNumImages().call({ from: web3State.address });
+        const temp = [];
+        for (let i = 0; i < numImgs; ++i) {
+          temp.push(i);
+        }
+        setImageNums(temp);
+      } catch (err) {
+        console.log("Error fetching ids from chain", err)
       }
-      setImageNums(temp);
     }
     initAlbum();
   }, [web3State])
@@ -49,16 +53,6 @@ export default function Album({web3State}) {
           {/* End hero unit */}
           <Grid container spacing={4}>
             {imageNums.map((card) => (
-              <Grid item key={card} xs={12} sm={6} md={4}>
-                <GIRImageCard id={card} state={web3State}/>
-              </Grid>
-            ))}
-          </Grid>
-            <Box sx={{paddingBlock: 2}}>
-              <Typography component="h3">My Images</Typography>
-            </Box>
-            <Grid container spacing={4}>
-            {myCards.map((card) => (
               <Grid item key={card} xs={12} sm={6} md={4}>
                 <GIRImageCard id={card} state={web3State}/>
               </Grid>

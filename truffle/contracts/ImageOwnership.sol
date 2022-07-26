@@ -58,6 +58,10 @@ contract ImageOwnership is ImageFactory, ERC721X {
                 imageApprovals[_tokenId] == msg.sender,
             "Sender is not owner and image is not approved"
         );
+        require(
+            isImageListed(_tokenId) == false,
+            "Listed image cannot be transferred"
+        );
         _transfer(_from, _to, _tokenId);
     }
 

@@ -11,13 +11,14 @@ export async function uploadToIPFS(image, ipfsInstance) {
         throw e;
     }
 }
-export async function hashImage(file) {
+export async function hashImage(file, callback) {
     const fReader = new FileReader();
     fReader.onloadend = (ev) => {
         if (ev.target.readyState !== fReader.DONE) return;
         const wordArray = WordArray.create(ev.target.result);
         const hash = sha256(wordArray).toString();
-        return hash;
+        console.log(hash)
+        callback(hash)
     }
     fReader.readAsArrayBuffer(file);
 }
