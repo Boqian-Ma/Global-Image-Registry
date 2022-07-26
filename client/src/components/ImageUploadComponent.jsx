@@ -16,29 +16,37 @@ function ImageUploadComponent({state, setState}) {
   const [uploadedImage, setUploadedImage] = useState(null);
   const [currTitle, setCurrTitle] = useState('');
   const [currDescription, setCurrDescription] = useState('');
+  const [publicImage, setPublicImage] = useState(false);
 
   async function uploadImage(ev) {
     ev.preventDefault();
     if (!currImage || !currTitle || !currDescription) return;
     console.log(`Title: ${currTitle}, Desc: ${currDescription}, img: ${currImage}`);
+    let path;
     try {
-      const ipfsData = await uploadToIPFS(currImage, ipfsClient);
-      console.log(ipfsData);
-      // const dummyObj =
-      //     {
-      //         "path": "QmaQQzwF625qUT9Ts4jc5DnRDmL9bLpNophjmHhVwhYWYF",
-      //         "size": 87785
-      //     }
-      /* ipfsData is an object containing:
-            {
-                cid: CID,
-                path: string representing the hashed value of the input, URL where file is stored
-                size: number of bytes in the stored file
-            }
-            */
-      setUploadedImage(ipfsData);
+      if (publicImage) {
+
+        const ipfsData = await uploadToIPFS(currImage, ipfsClient);
+        console.log(ipfsData);
+        // const dummyObj =
+        //     {
+          //         "path": "QmaQQzwF625qUT9Ts4jc5DnRDmL9bLpNophjmHhVwhYWYF",
+          //         "size": 87785
+          //     }
+          /* ipfsData is an object containing:
+          {
+            cid: CID,
+            path: string representing the hashed value of the input, URL where file is stored
+            size: number of bytes in the stored file
+          }
+          */
+         setUploadedImage(ipfsData);
+         path = ipfsData.path;
+        } else {
+          path = "N/A"
+        }
       const uploadImage = async (hash) => {
-        await state.contracts.ImageOwnership.methods.createNewImage(currTitle, currDescription, hash, ipfsData.path).send({ from: state.address });
+        await state.contracts.ImageOwnership.methods.createNewImage(currTitle, currDescription, hash, path).send({ from: state.address });
 
       }
       await hashImage(currImage, uploadImage);
@@ -65,6 +73,12 @@ function ImageUploadComponent({state, setState}) {
       <label> Description:
         <input type="text" name="description" onChange={(ev) => setCurrDescription(ev.target.value)} required/>
       </label>
+      <div>
+
+      <label> Would you to upload this image to IPFS?
+        <input type="checkbox" name="public" checked={publicImage} onChange={() => setPublicImage(!publicImage)} />
+      </label>
+      </div>
       </div>
       <input
         type="file"
@@ -76,7 +90,7 @@ function ImageUploadComponent({state, setState}) {
       </form>
       {uploadedImage && <p>{uploadImage}</p>}
       {uploadedImage && (
-        <img src={`https://ipfs.io/ipfs/${uploadedImage.path}`} />
+        <img src={`https://ipfs.io/ipfs/${uploadedImage.path}`} style={{height: '350px', width: "340px"}}/>
       )}
       {/*Provide blockchain explorer link */}
     </div>

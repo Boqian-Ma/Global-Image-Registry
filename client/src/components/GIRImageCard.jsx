@@ -102,7 +102,7 @@ function GIRImageCard({id, state}) {
             flexDirection: "column",
           }}
         >
-          {ipfsAddr != null && <CardMedia
+          {ipfsAddr != null && ipfsAddr !== "N/A" && <CardMedia
             component="img"
             image={`https://ipfs.io/ipfs/${ipfsAddr}`}
             alt="random"
