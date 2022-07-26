@@ -20,7 +20,7 @@ import Album from "./components/Album";
 
 // Contracts
 //import ImageFactory from "./contracts/ImageFactory.json";
-import ImageOwnership from "./contracts/ImageOwnership.json"
+import ImageOwnership from "./contracts/ImageOwnership.json";
 
 // Pages
 import Home from "./pages";
@@ -35,9 +35,8 @@ function App() {
     address: null,
     contracts: null,
   });
-  
-  const [web3Ready, setWeb3Ready] = useState(false)
 
+  const [web3Ready, setWeb3Ready] = useState(false);
 
   useEffect(() => {
     const initWeb3 = async () => {
@@ -64,55 +63,66 @@ function App() {
 
       // set state
       const web3 = new Web3(web3Provider);
-      setState(prevState => ({ 
+      setState((prevState) => ({
         ...prevState,
-        web3: web3, 
-        web3Provider: web3Provider
-        }
-      ));
+        web3: web3,
+        web3Provider: web3Provider,
+      }));
 
       // set account address
-       await window.ethereum.request({ method: "eth_requestAccounts" }).then((res) => {
-        // Return the address of the wallet
-        console.log(typeof res[0])
-        setState(prevState => ({ 
-          ...prevState,
-          address: res[0]
-          }
-        ))
-        // alert(res);
-      });
+      await window.ethereum
+        .request({ method: "eth_requestAccounts" })
+        .then((res) => {
+          // Return the address of the wallet
+          console.log(typeof res[0]);
+          setState((prevState) => ({
+            ...prevState,
+            address: res[0],
+          }));
+          // alert(res);
+        });
       // return App.initContracts();
     };
     initWeb3();
   }, []);
-  
+
   useEffect(() => {
-    const initContracts = async  () => {
+    const initContracts = async () => {
       if (!state.web3Provider) return;
       const { abi } = ImageOwnership;
       const networkID = await state.web3.eth.net.getId();
-      console.log("NetworkId", networkID)
-      const imageOwnershipContract = new state.web3.eth.Contract(abi,"0x1f8A69C6BFd0d4cB06542E7bEa25C71F45D18d03")
+      console.log("NetworkId", networkID);
+      const imageOwnershipContract = new state.web3.eth.Contract(
+        abi,
+        "0x393416A4dbd0aa7Fb0cDE62ab1c1937ECfE06017"
+      );
       console.log(imageOwnershipContract);
-      const numImg = await imageOwnershipContract.methods.getNumImages().call({ from: state.address })
-      console.log("numImg: ", numImg)
-      setState(prevState => ({
+      const numImg = await imageOwnershipContract.methods
+        .getNumImages()
+        .call({ from: state.address });
+      console.log("numImg: ", numImg);
+      setState((prevState) => ({
         ...prevState,
-        contracts: { ImageOwnership : imageOwnershipContract }
-      }))
+        contracts: { ImageOwnership: imageOwnershipContract },
+      }));
     };
     initContracts();
-  }, [state.web3Provider])
-  
+  }, [state.web3Provider]);
+
   useEffect(() => {
-    if (state.web3 === null || state.web3Provider === null || state.address === null || state.contracts === null) return
+    if (
+      state.web3 === null ||
+      state.web3Provider === null ||
+      state.address === null ||
+      state.contracts === null
+    )
+      return;
     setWeb3Ready(true);
-  }, [state.contracts])
- 
-  useEffect(() =>{
-    console.log(state)
-  }, [state])
+  }, [state.contracts]);
+
+  useEffect(() => {
+    console.log(state);
+  }, [state]);
 
   const mainFeaturedPost = {
     title: "Global Image Registry",
@@ -142,22 +152,24 @@ function App() {
     // </Router>
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      {web3Ready === true && <Container maxWidth="lg">
-        <Header loginState={state.address} state={state} />
-        <main>
-          <MainFeaturedPost
-            post={mainFeaturedPost}
-            loginState={state.address}
-            state={state}
-          />
-          {/* <Grid container spacing={4}>
+      {web3Ready === true && (
+        <Container maxWidth="lg">
+          <Header loginState={state.address} state={state} />
+          <main>
+            <MainFeaturedPost
+              post={mainFeaturedPost}
+              loginState={state.address}
+              state={state}
+            />
+            {/* <Grid container spacing={4}>
               {featuredPosts.map((post) => (
                 <FeaturedPost key={post.title} post={post} />
               ))}
             </Grid> */}
-        </main>
-        <Album web3State={state}/>
-      </Container>}
+          </main>
+          <Album web3State={state} />
+        </Container>
+      )}
       <Footer
         title="Footer"
         description="Something here to give the footer a purpose!"
