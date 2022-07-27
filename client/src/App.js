@@ -135,17 +135,17 @@ function App() {
         <Header
           loginState={state.address}
           state={state}
-          updateState={setState}
+          setState={setState}
         />
         <main>
           <MainFeaturedPost
             post={mainFeaturedPost}
             loginState={state.address}
             state={state}
-            updateState={setState}
+            setState={setState}
           />
         </main>
-        {web3Ready && <Album web3State={state} />}
+        {web3Ready && <Album web3State={state}/>}
       </Container>
     </ThemeProvider>
   );

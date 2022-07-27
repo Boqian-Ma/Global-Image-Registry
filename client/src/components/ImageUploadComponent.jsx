@@ -46,7 +46,10 @@ function ImageUploadComponent({state, setState}) {
         }
       const uploadImage = async (hash) => {
         await state.contracts.ImageOwnership.methods.createNewImage(currTitle, currDescription, hash, path).send({ from: state.address });
-
+        setState(prev => ({
+          ...prev,
+          modified: prev.modified++
+        }))
       }
       await hashImage(currImage, uploadImage);
     } catch (e) {
@@ -91,7 +94,7 @@ function ImageUploadComponent({state, setState}) {
       {uploadedImage && (
         <img src={`https://ipfs.io/ipfs/${uploadedImage.path}`}
           style={{height: '350px', width: "340px"}}
-          alt="Successfully loaded to ipfs"
+          alt=""
         />
       )}
       {/*Provide blockchain explorer link */}

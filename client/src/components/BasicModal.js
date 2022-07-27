@@ -37,6 +37,9 @@ export default function BasicModal({buttonType, name, Component, title}) {
             {title}
           </Typography>
           {Component}
+          <div>
+            <Button variant="contained" size="small" onClick={handleClose} sx={{marginTop: '10px'}}>Close</Button>
+          </div>
         </Box>
       </Modal>
     </div>
