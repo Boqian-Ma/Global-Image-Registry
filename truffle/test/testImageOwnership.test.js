@@ -212,7 +212,7 @@ contract("ImageOwnership", (accounts) => {
         // Img3 is owned by account 1
         it("Unapproved image cannot be licenced by owner", async () => {
             try {
-                await contract.listImageLicence(3, 0, {from: accountOne })
+                await contract.listImageLicence(3, 0, 1,{from: accountOne })
             } catch (e){
                 assert(e, "Function failed to throw error")
             }
@@ -226,7 +226,7 @@ contract("ImageOwnership", (accounts) => {
         })
         it("Seller can list image", async () => {
             await contract.approve(accountOne, 3, { from: accountOne })
-            await contract.listImageLicence(3, 500, {from: accountOne})
+            await contract.listImageLicence(3, 500, 2, {from: accountOne})
             assert(await contract.isImageListedForLicence(3, {from: accountOne}), "Image failed to be listed")
         })
         it("Buyer cannot purchase licence for less than listing price", async () => {
@@ -253,7 +253,7 @@ contract("ImageOwnership", (accounts) => {
         it("Buyer can purchase licence", async () => {
             const bal1 = await web3.eth.getBalance(accountOne);
             const bal2 = await web3.eth.getBalance(accountTwo);
-            await contract.listImageLicence(3, 500, {from: accountOne}) // relist image for licence
+            await contract.listImageLicence(3, 500, 0,{from: accountOne}) // relist image for licence
             await contract.buyLicence(3, {from: accountTwo, value: 500})
             const licenceDetails = await  contract.getImageDetails(3, {from: accountOne })  
             assert(bal1, await web3.eth.getBalance(accountOne) + 500, "Seller was not compensated")
