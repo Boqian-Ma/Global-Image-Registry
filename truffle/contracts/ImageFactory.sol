@@ -23,7 +23,7 @@ contract ImageFactory is Ownable {
         bool forSale;
         bool forLicense;
         uint256 price; // price is measured in wei
-        uint256 priceLicense
+        uint256 priceLicense;
         address [] licences;
         uint256 numOfLicenses;
     }
