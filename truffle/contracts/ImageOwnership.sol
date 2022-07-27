@@ -89,7 +89,18 @@ contract ImageOwnership is ImageFactory, ERC721X {
         images[_tokenId].forSale = true;
         images[_tokenId].price = _price;
     }
-
+    
+    // HM: added a function to list image for licensing (vs outright copyright purchase)
+    function listImageforLicensing(uint256 _tokenId, uint256 _price)
+        external
+        onlyOwnerOf(_tokenId)
+        imageIsApproved(_tokenId)
+    {
+        //note: don't include this – require(_price > 0, "Price cannot be less than 0 wei"), since we should allow free licenses
+        images[_tokenId].forLicense = true;
+        images[_tokenId].priceLicense = _price;
+    }
+    
     function changeListingPrice(uint256 _tokenId, uint256 _price)
         public
         onlyOwnerOf(_tokenId)
@@ -98,6 +109,16 @@ contract ImageOwnership is ImageFactory, ERC721X {
         require(_price > 0, "New price must be greater than 0");
         images[_tokenId].price = _price;
     }
+    
+    //HM: added function to change price of licensing
+    function changeListingPriceLicense(uint256 _tokenId, uint256 _price)
+        public
+        onlyOwnerOf(_tokenId)
+        imageIsListed(_tokenId)
+    {
+        //note: don't include this – require(_price > 0, "Price cannot be less than 0 wei"), since we should allow free licenses
+        images[_tokenId].priceLicense = _price;
+    }
 
     function unlistImage(uint256 _tokenId)
         external
@@ -105,6 +126,15 @@ contract ImageOwnership is ImageFactory, ERC721X {
         imageIsListed(_tokenId)
     {
         images[_tokenId].forSale = false;
+    }
+    
+    //HM: added function to delist image for licensing – having two delisting functions means user can keep it up for sale while not allow licensing or vice versa
+    function unlistImageforLicensing(uint256 _tokenId)
+        external
+        onlyOwnerOf(_tokenId)
+        imageIsListed(_tokenId)
+    {
+        images[_tokenId].forLicense = false;
     }
 
     function buyImage(uint256 _tokenId) public payable imageIsListed(_tokenId) {
@@ -116,6 +146,17 @@ contract ImageOwnership is ImageFactory, ERC721X {
         image.forSale = false;
         _transfer(seller, buyer, _tokenId);
         emit ImageSold(_tokenId, image.title, seller, buyer, msg.value);
+    }
+    
+    //HM: added function to buy license for image (vs outright buying the full copyright)
+    function buyLicense(uint256 _tokenId) public payable imageIsListedForLicensing(_tokenId) {
+        Image storage image = images[_tokenId];
+        require(msg.value >= image.priceLicense, "Insufficient price to buy image");
+        address payable buyer = payable(msg.sender);
+        address payable seller = payable(imageToOwner[_tokenId]);
+        seller.transfer(msg.value);
+        image.LicenseHistory[numLicenses] = msg.sender;     //add to the mapping
+        image.numLicenses++;                                //increment the number of licenses
     }
 
     // helpers
@@ -149,6 +190,11 @@ contract ImageOwnership is ImageFactory, ERC721X {
     function isImageListed(uint256 _tokenId) public view returns (bool) {
         return images[_tokenId].forSale == true;
     }
+    
+    //HM: added function to check if image is listed for licensing
+    function isImageListedForLicensing(uint256 _tokenId) public view returns (bool) {
+        return images[_tokenId].forLicensing; //HM: not sure why the "true" is necessary in one above
+    }
 
     modifier onlyOwnerOf(uint256 _imageId) {
         require(msg.sender == imageToOwner[_imageId], "Sender is not owner");
@@ -162,6 +208,12 @@ contract ImageOwnership is ImageFactory, ERC721X {
 
     modifier imageIsListed(uint256 _imageId) {
         require(isImageListed(_imageId), "Image is not for sale");
+        _;
+    }
+    
+    //HM: added modifier to check if image is listed for licensing
+    modifier imageIsListedforLicensing(uint256 _imageId) {
+        require(isImageListedForLicensing(_imageId), "Image is not for licensing");
         _;
     }
 }
