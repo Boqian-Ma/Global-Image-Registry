@@ -25,7 +25,7 @@ contract ImageFactory is Ownable {
         uint256 price; // price is measured in wei
         uint256 priceLicense;
         address [] licences;
-        uint256 numOfLicenses;
+        uint256 numOfLicences;
     }
 
     struct ImageIndex {
