@@ -1,9 +1,7 @@
 import * as React from "react";
-import PropTypes from "prop-types";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Grid";
-import Link from "@mui/material/Link";
 import Box from "@mui/material/Box";
 import ImageUploadComponent from "./ImageUploadComponent";
 import BasicModal from "./BasicModal";
@@ -14,7 +12,15 @@ function MainFeaturedPost(props) {
   let upLoadButton;
   if (props.loginState != null) {
     upLoadButton = (
-      <BasicModal buttonType="contained" name="Upload an Image" Component={<ImageUploadComponent state={props.state} setState={props.setState} />} title="Upload an Image to the Ethereum Blockchain"/>
+      <BasicModal
+        buttonType="contained"
+        name="Upload an Image"
+        Component={
+          <ImageUploadComponent 
+            state={props.state}
+            setState={props.setState}
+            />} 
+        title="Upload an Image to the Ethereum Blockchain"/>
     );
   } else {
   }
@@ -32,7 +38,6 @@ function MainFeaturedPost(props) {
         backgroundImage: `url(${post.image})`,
       }}
     >
-      {/* Increase the priority of the hero background image */}
       {
         <img
           style={{ display: "none" }}
@@ -70,9 +75,6 @@ function MainFeaturedPost(props) {
             <Typography variant="h5" color="inherit" paragraph>
               {post.description}
             </Typography>
-            {/* <Link variant="subtitle1" href="#">
-              {post.linkText}
-            </Link> */}
             {upLoadButton}
           </Box>
         </Grid>
@@ -80,15 +82,5 @@ function MainFeaturedPost(props) {
     </Paper>
   );
 }
-
-MainFeaturedPost.propTypes = {
-  post: PropTypes.shape({
-    description: PropTypes.string.isRequired,
-    image: PropTypes.string.isRequired,
-    imageText: PropTypes.string.isRequired,
-    linkText: PropTypes.string.isRequired,
-    title: PropTypes.string.isRequired,
-  }).isRequired,
-};
 
 export default MainFeaturedPost;

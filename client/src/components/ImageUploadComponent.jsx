@@ -25,7 +25,6 @@ function ImageUploadComponent({state, setState}) {
     let path;
     try {
       if (publicImage) {
-
         const ipfsData = await uploadToIPFS(currImage, ipfsClient);
         console.log(ipfsData);
         // const dummyObj =
@@ -90,7 +89,10 @@ function ImageUploadComponent({state, setState}) {
       </form>
       {uploadedImage && <p>{uploadImage}</p>}
       {uploadedImage && (
-        <img src={`https://ipfs.io/ipfs/${uploadedImage.path}`} style={{height: '350px', width: "340px"}}/>
+        <img src={`https://ipfs.io/ipfs/${uploadedImage.path}`}
+          style={{height: '350px', width: "340px"}}
+          alt="Successfully loaded to ipfs"
+        />
       )}
       {/*Provide blockchain explorer link */}
     </div>

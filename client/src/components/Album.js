@@ -1,34 +1,15 @@
 import * as React from "react";
-// import AppBar from "@mui/material/AppBar";
 import CssBaseline from "@mui/material/CssBaseline";
 import Grid from "@mui/material/Grid";
-// import Stack from "@mui/material/Stack";
-import Box from "@mui/material/Box";
-// import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
-import Link from "@mui/material/Link";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import GIRImageCard from "./GIRImageCard";
 import {useEffect, useState} from "react";
 
-function Copyright() {
-  return (
-    <Typography variant="body2" color="text.secondary" align="center">
-      {"Copyright © "}
-      <Link color="inherit" href="https://mui.com/">
-        Your Website
-      </Link>{" "}
-      {new Date().getFullYear()}
-      {"."}
-    </Typography>
-  );
-}
-
 const theme = createTheme();
+/*Main component that holds the image objects from the contract*/
 
 export default function Album({web3State}) {
-  //console.log("Album state", web3State)
   const [imageNums, setImageNums] = useState([]);
   useEffect(() => {
     const initAlbum = async () => {
@@ -49,8 +30,7 @@ export default function Album({web3State}) {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <main>
-        <Container maxWidth="md">
-          {/* End hero unit */}
+        <Container maxWidth="md" sx={{ paddingBottom: '50px'}}>
           <Grid container spacing={4}>
             {imageNums.map((card) => (
               <Grid item key={card} xs={12} sm={6} md={4}>
