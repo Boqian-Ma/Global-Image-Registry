@@ -21,9 +21,9 @@ contract ImageFactory is Ownable {
         string ipfs;
         uint32 creationTime;
         bool forSale;
-        bool forLicense;
+        bool forLicence;
         uint256 price; // price is measured in wei
-        uint256 priceLicense;
+        uint256 priceLicence;
         address [] licences;
         uint256 numOfLicences;
     }
