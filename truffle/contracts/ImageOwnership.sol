@@ -96,6 +96,15 @@ contract ImageOwnership is ImageFactory, ERC721X {
         images[_tokenId].forSale = true;
         images[_tokenId].price = _price;
     }
+    
+    function listImageLicence(uint256 _tokenId, uint256 _price)
+        external
+        onlyOwnerOf(_tokenId)
+        imageIsApproved(_tokenId)
+    {
+        images[_tokenId].forLicence = true;
+        images[_tokenId].priceLicence = _price;
+    }
 
     /// @notice Update the price of a listed image
     /// @param _tokenId Id of the image token
@@ -108,6 +117,15 @@ contract ImageOwnership is ImageFactory, ERC721X {
         require(_price > 0, "New price must be greater than 0");
         images[_tokenId].price = _price;
     }
+    
+    function changeListingPriceLicence(uint256 _tokenId, uint256 _price)
+        public
+        onlyOwnerOf(_tokenId)
+        imageIsListedForLicence(_tokenId)
+    {
+        require(_price > 0, "New price must be greater than 0");
+        images[_tokenId].priceLicence = _price;
+    }
 
     /// @notice Unlist an image from the marketplace
     /// @param _tokenId Id of the image token
@@ -117,6 +135,14 @@ contract ImageOwnership is ImageFactory, ERC721X {
         imageIsListed(_tokenId)
     {
         images[_tokenId].forSale = false;
+    }
+    
+    function unlistImageLicence(uint256 _tokenId)
+        external
+        onlyOwnerOf(_tokenId)
+        imageIsListedForLicence(_tokenId)
+    {
+        images[_tokenId].forLicence = false;
     }
 
     /// @notice Purchase an iamge
@@ -130,6 +156,16 @@ contract ImageOwnership is ImageFactory, ERC721X {
         image.forSale = false;
         _transfer(seller, buyer, _tokenId);
         emit ImageSold(_tokenId, image.title, seller, buyer, msg.value);
+    }
+    
+    function buyLicence(uint256 _tokenId) public payable imageIsListedForLicence(_tokenId) {
+         Image storage image = images[_tokenId];
+         require(msg.value >= image.priceLicence, "Insufficient price to buy image");
+         address payable buyer = payable(msg.sender);
+         address payable seller = payable(imageToOwner[_tokenId]);
+         seller.transfer(msg.value);
+         image[_tokenId].licences[numOfLicences] = msg.sender;
+         image[_tokenId].numOfLicences++;
     }
 
     // helpers
@@ -170,6 +206,10 @@ contract ImageOwnership is ImageFactory, ERC721X {
     function isImageListed(uint256 _tokenId) public view returns (bool) {
         return images[_tokenId].forSale == true;
     }
+    
+    function isImageListedForLicence(uint256 _tokenId) public view returns (bool) {
+        return images[_tokenId].forLicence;
+    }
 
     /// @notice Only the owner of the token can call the function
     /// @param _imageId Id of the image token
@@ -191,4 +231,9 @@ contract ImageOwnership is ImageFactory, ERC721X {
         require(isImageListed(_imageId), "Image is not for sale");
         _;
     }
+    
+    modifier imageIsListedForLicence(uint256 _imageId) {
+        require(isImageListedForLicence(_imageId), "Image is not for licencing");
+    }
+    
 }
