@@ -97,13 +97,23 @@ contract ImageOwnership is ImageFactory, ERC721X {
         images[_tokenId].price = _price;
     }
 
-    function listImageLicence(uint256 _tokenId, uint256 _price)
+    function listImageLicence(uint256 _tokenId, uint256 _price, uint256 licencetype)            //for licencetype - 0 = RF; 1 = RR; 2 = RM
         external
         onlyOwnerOf(_tokenId)
         imageIsApproved(_tokenId)
+        imageIsUnlisted(_tokenId) //not allow listing when already listed
     {
         images[_tokenId].forLicence = true;
         images[_tokenId].priceLicence = _price;
+        if (licencetype == 0) {
+            images[_tokenId].forRF = true;
+        }
+        if (licencetype == 1) {
+            images[_tokenId].forRR = true;
+        }
+        if (licencetype == 2) {
+            images[_tokenId].forRM = true;
+        }
     }
 
     /// @notice Update the price of a listed image
@@ -128,11 +138,20 @@ contract ImageOwnership is ImageFactory, ERC721X {
         images[_tokenId].forSale = false;
     }
 
-    function unlistImageLicence(uint256 _tokenId)
+    function unlistImageLicence(uint256 _tokenId, uint licenceType)
         external
         onlyOwnerOf(_tokenId)
         imageIsListedForLicence(_tokenId)
     {
+        if (licencetype == 0) {
+            images[_tokenId].forRF = false;
+        }
+        if (licencetype == 1) {
+            images[_tokenId].forRR = false;
+        }
+        if (licencetype == 2) {
+            images[_tokenId].forRM = false;
+        }
         images[_tokenId].forLicence = false;
     }
 
@@ -149,7 +168,7 @@ contract ImageOwnership is ImageFactory, ERC721X {
         emit ImageSold(_tokenId, image.title, seller, buyer, msg.value);
     }
 
-    function buyLicence(uint256 _tokenId)
+    function buyLicence(uint256 _tokenId, uint256 licenceType)
         public
         payable
         imageIsListedForLicence(_tokenId)
@@ -161,7 +180,16 @@ contract ImageOwnership is ImageFactory, ERC721X {
         );
         address payable seller = payable(imageToOwner[_tokenId]);
         seller.transfer(msg.value);
-        image.licences.push(msg.sender);
+        if (licenceType = 0) {
+            Licence newLicence = Licence(msg.sender, RF);
+        }
+        if (licenceType = 1) {
+            Licence newLicence = Licence(msg.sender, RR);
+        }
+        if (licenceType = 2) {
+            Licence newLicence = Licence(msg.sender, RM);
+        }
+        image.licences.push(newLicence);
         image.numOfLicences++;
     }
 
@@ -244,4 +272,12 @@ contract ImageOwnership is ImageFactory, ERC721X {
         );
         _;
     }
+    
+    modifier imageIsUnlisted(uint256 _tokenId) {                                        //modifier to check if image is already listed for licence
+        require(
+            !isImageListedforLicence(_imageId), "Image is already listed for licencing"
+        );
+        _;
+    }
+    
 }
