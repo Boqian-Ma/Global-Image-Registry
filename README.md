@@ -36,5 +36,5 @@ The truffle configuration file current deploys the contracts to Ganache running 
 To interact with smart contracts through the frontend after making a change to the smart contracts, generally you will need to run:
   truffle migrate --reset
 This clears the previous contract deployment and will deploy it to another address.
-Get the contract address from the truffle migrate output and paste it into the App.js file on line 30~ for the variable contractAddr.
+Get the contract address from the truffle migrate output and paste it into the App.js file on line 16~ for the variable contractAddr.
 
