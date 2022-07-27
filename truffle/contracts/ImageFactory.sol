@@ -3,6 +3,7 @@
 pragma solidity >=0.5.1 <=0.8.15;
 import "./Ownable.sol";
 
+/// @notice Factory contract, facilitates creation and stores basic Image adata type
 contract ImageFactory is Ownable {
     event NewImage(
         uint256 imageID,
@@ -91,19 +92,8 @@ contract ImageFactory is Ownable {
         _createImage(_title, _description, imageHashBytes, _ipfs);
     }
 
+    /// @notice Getter for the number of images stored in the contract
     function getNumImages() public view returns (uint256) {
         return numImages;
     }
-
-    // function _generateRandomDna(string memory _str) private view returns (uint) {
-    //     uint rand = uint(keccak256(abi.encodePacked(_str)));
-    //     return rand % dnaModulus;
-    // }
-
-    // function createRandomZombie(string memory _name) public {
-    //     require(ownerZombieCount[msg.sender] == 0);
-    //     uint randDna = _generateRandomDna(_name);
-    //     randDna = randDna - randDna % 100;
-    //     _createZombie(_name, randDna);
-    // }
 }

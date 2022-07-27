@@ -6,6 +6,8 @@ import "./ImageFactory.sol";
 import "./ERC721.sol";
 import "./SafeMath.sol";
 
+/// @notice Contract contains ERC721 function overrides,
+/// @notice additional functions and motifiers for buying, selling, licencing
 contract ImageOwnership is ImageFactory, ERC721X {
     using SafeMath for uint256;
 
@@ -75,11 +77,16 @@ contract ImageOwnership is ImageFactory, ERC721X {
         emit Approval(msg.sender, _approved, _tokenId);
     }
 
+    /// @notice Check if an image is approved by the owner
+    /// @param _tokenId Id of the image token
+    /// @return bool if image is approved or not
     function isTokenApproved(uint256 _tokenId) public view returns (bool) {
         return imageToOwner[_tokenId] == imageApprovals[_tokenId];
     }
 
     // Selling functions
+    /// @param _tokenId Id of the image token
+    /// @param _price Price in wei of the image
     function listImage(uint256 _tokenId, uint256 _price)
         external
         onlyOwnerOf(_tokenId)
@@ -90,6 +97,9 @@ contract ImageOwnership is ImageFactory, ERC721X {
         images[_tokenId].price = _price;
     }
 
+    /// @notice Update the price of a listed image
+    /// @param _tokenId Id of the image token
+    /// @param _price Price in wei of the image
     function changeListingPrice(uint256 _tokenId, uint256 _price)
         public
         onlyOwnerOf(_tokenId)
@@ -99,6 +109,8 @@ contract ImageOwnership is ImageFactory, ERC721X {
         images[_tokenId].price = _price;
     }
 
+    /// @notice Unlist an image from the marketplace
+    /// @param _tokenId Id of the image token
     function unlistImage(uint256 _tokenId)
         external
         onlyOwnerOf(_tokenId)
@@ -107,6 +119,8 @@ contract ImageOwnership is ImageFactory, ERC721X {
         images[_tokenId].forSale = false;
     }
 
+    /// @notice Purchase an iamge
+    /// @param _tokenId Id of the image token
     function buyImage(uint256 _tokenId) public payable imageIsListed(_tokenId) {
         Image storage image = images[_tokenId];
         require(msg.value >= image.price, "Insufficient price to buy image");
@@ -119,7 +133,9 @@ contract ImageOwnership is ImageFactory, ERC721X {
     }
 
     // helpers
-    // returns image information, currently does not include IPFS as we may want to encrypt it
+    /// @notice return useful information for an image
+    /// @dev Some solidity variables cannot be stored in memory, return them separately from the image object
+    /// @param _tokenId Id of the image token
     function getImageDetails(uint256 _tokenId)
         external
         view
@@ -142,24 +158,35 @@ contract ImageOwnership is ImageFactory, ERC721X {
         );
     }
 
+    /// @notice Get the address of the owner of the image
+    /// @param _tokenId Id of the image token
+    /// @return solidity address datatype
     function getImageOwner(uint256 _tokenId) public view returns (address) {
         return imageToOwner[_tokenId];
     }
 
+    /// @notice Getter function for checking if image is listed
+    /// @param _tokenId Id of the image token
     function isImageListed(uint256 _tokenId) public view returns (bool) {
         return images[_tokenId].forSale == true;
     }
 
+    /// @notice Only the owner of the token can call the function
+    /// @param _imageId Id of the image token
     modifier onlyOwnerOf(uint256 _imageId) {
         require(msg.sender == imageToOwner[_imageId], "Sender is not owner");
         _;
     }
 
+    /// @notice Image must be approved for owner actions
+    /// @param _imageId Id of the image token
     modifier imageIsApproved(uint256 _imageId) {
         require(isTokenApproved(_imageId), "Image is not approved");
         _;
     }
 
+    /// @notice Image must be listed for selling
+    /// @param _imageId Id of the image token
     modifier imageIsListed(uint256 _imageId) {
         require(isImageListed(_imageId), "Image is not for sale");
         _;
