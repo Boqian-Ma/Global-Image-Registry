@@ -30,6 +30,9 @@ contract ImageOwnership is ImageFactory, ERC721X {
         return ownerImageCount[_owner];
     }
 
+    /// @notice returns the owner of an image
+    /// @param _tokenId Id of the image token
+    /// @return address of owner
     function ownerOf(uint256 _tokenId)
         external
         view
@@ -85,6 +88,7 @@ contract ImageOwnership is ImageFactory, ERC721X {
     }
 
     // Selling functions
+    /// @notice list image for sale on the marketplace
     /// @param _tokenId Id of the image token
     /// @param _price Price in wei of the image
     function listImage(uint256 _tokenId, uint256 _price)
@@ -97,6 +101,10 @@ contract ImageOwnership is ImageFactory, ERC721X {
         images[_tokenId].price = _price;
     }
 
+    /// @notice list image for licencing on the marketplace
+    /// @param _tokenId of the image token
+    /// @param _price of the image's licence
+    /// @param _licencetype – specifies the type of licence that will be listed: royalty-free, rights-reserved, rights-managed.
     function listImageLicence(
         uint256 _tokenId,
         uint256 _price,
@@ -136,7 +144,7 @@ contract ImageOwnership is ImageFactory, ERC721X {
         images[_tokenId].price = _price;
     }
 
-    /// @notice Unlist an image from the marketplace
+    /// @notice Unlist an image from the copyright marketplace
     /// @param _tokenId Id of the image token
     function unlistImage(uint256 _tokenId)
         external
@@ -146,6 +154,8 @@ contract ImageOwnership is ImageFactory, ERC721X {
         images[_tokenId].forSale = false;
     }
 
+    /// @notice unlist an image from the licencing marketplace
+    /// @param _tokenId of the image token
     function unlistImageLicence(uint256 _tokenId)
         external
         onlyOwnerOf(_tokenId)
@@ -154,7 +164,7 @@ contract ImageOwnership is ImageFactory, ERC721X {
         images[_tokenId].forLicence = false;
     }
 
-    /// @notice Purchase an iamge
+    /// @notice Purchase copyright of an image
     /// @param _tokenId Id of the image token
     function buyImage(uint256 _tokenId) public payable imageIsListed(_tokenId) {
         Image storage image = images[_tokenId];
@@ -167,6 +177,8 @@ contract ImageOwnership is ImageFactory, ERC721X {
         emit ImageSold(_tokenId, image.title, seller, buyer, msg.value);
     }
 
+    /// @notice Purchase licence of an image, note: image can only be listed for 1 type of licence
+    /// @param _tokenId Id of the image token
     function buyLicence(uint256 _tokenId)
         public
         payable
@@ -184,7 +196,7 @@ contract ImageOwnership is ImageFactory, ERC721X {
         image.numOfLicences++;
     }
 
-    // helpers
+    // helper functions
     /// @notice return useful information for an image
     /// @dev Some solidity variables cannot be stored in memory, return them separately from the image object
     /// @param _tokenId Id of the image token
@@ -229,6 +241,9 @@ contract ImageOwnership is ImageFactory, ERC721X {
         return images[_tokenId].forSale == true;
     }
 
+    /// @notice Check image is listed for licence
+    /// @param _imageId Id of the image token
+    /// @return bool indicating whether image is listed
     function isImageListedForLicence(uint256 _tokenId)
         public
         view
@@ -238,6 +253,8 @@ contract ImageOwnership is ImageFactory, ERC721X {
     }
 
     /// @notice Given an imageId checks if the message sender is a licencee
+    /// @param _imageId Id of the image token
+    /// @return bool indicating whether image is listed
     function isAddrLicencingImage(uint256 _imageId) public view returns (bool) {
         Image storage image = images[_imageId];
         uint256 numLicences = image.numOfLicences;
@@ -269,7 +286,9 @@ contract ImageOwnership is ImageFactory, ERC721X {
         require(isImageListed(_imageId), "Image is not for sale");
         _;
     }
-
+    
+    /// @notice Image must be listed for licencing
+    /// @param _imageId Id of the same image
     modifier imageIsListedForLicence(uint256 _imageId) {
         require(
             isImageListedForLicence(_imageId),
@@ -278,8 +297,9 @@ contract ImageOwnership is ImageFactory, ERC721X {
         _;
     }
 
+    /// @notice Image must be unlisted
+    /// @param _imageId Id of the same image
     modifier imageIsUnlisted(uint256 _tokenId) {
-        //modifier to check if image is already listed for licence
         require(
             !isImageListedForLicence(_tokenId),
             "Image is already listed for licencing"
