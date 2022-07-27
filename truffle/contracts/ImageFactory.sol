@@ -14,10 +14,11 @@ contract ImageFactory is Ownable {
         uint32 creationTime
     );
 
+    // enum to store three licence types – these are the same types available on Getty Images (https://www.gettyimages.de/eula#:~:text=Getty%20Images%20offers%20three%20types,the%20content%20is%20re-used)
     enum LicenceType {
-        RF,
-        RR,
-        RM
+        RF,                 //"royalty free"
+        RR,                 //"rights ready"
+        RM                  //"rights managed"
     }
 
     struct Image {
@@ -26,14 +27,14 @@ contract ImageFactory is Ownable {
         bytes32 hash;
         string ipfs;
         uint32 creationTime;
-        bool forSale;
-        bool forLicence;
+        bool forSale;                       // available for copyright sale
+        bool forLicence;                    // available for licence sale
         LicenceType licenceType;
-        uint256 price; // price is measured in wei
-        uint256 priceLicence;
-        uint256 numOfLicences;
-        LicenceType[] licencesTypes;
-        address[] licencesOwners;
+        uint256 price;                      // price for outright copyright purchase - measured in wei
+        uint256 priceLicence;               // price for the licence purchase – measured in wei
+        uint256 numOfLicences;              
+        LicenceType[] licencesTypes;        // array to store active license types
+        address[] licencesOwners;           // array to store the addresses with valid licences
     }
 
     struct ImageIndex {
