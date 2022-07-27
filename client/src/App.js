@@ -13,7 +13,7 @@ import Album from "./components/Album";
 
 // Contracts
 import ImageOwnership from "./contracts/ImageOwnership.json";
-const contractAddr = "0xFDa7c33eE9dbAF73258F76e72547EAD3ddAa017d";
+const contractAddr = "0xb7b7251221aDCa2FF2ab3e970C0a6232c5939e77";
 
 function App() {
   const [state, setState] = useState({

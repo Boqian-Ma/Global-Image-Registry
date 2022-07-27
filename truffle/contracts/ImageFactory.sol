@@ -24,7 +24,7 @@ contract ImageFactory is Ownable {
         bool forLicence;
         uint256 price; // price is measured in wei
         uint256 priceLicence;
-        address [] licences;
+        address[] licences;
         uint256 numOfLicences;
     }
 
@@ -50,11 +50,22 @@ contract ImageFactory is Ownable {
         string memory _ipfs
     ) internal {
         uint32 creationTime = uint32(block.timestamp);
-
+        address[] memory licenceAddress;
         images.push(
-            Image(_title, _description, _hash, _ipfs, creationTime, false, 0)
+            Image(
+                _title,
+                _description,
+                _hash,
+                _ipfs,
+                creationTime,
+                false,
+                false,
+                0,
+                0,
+                licenceAddress,
+                0
+            )
         );
-        // uint id = images.push(Image(_name, _description,  _hash, _ipfs, creationTime)) - 1;
 
         emit NewImage(
             numImages,

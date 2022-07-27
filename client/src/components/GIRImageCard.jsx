@@ -22,7 +22,7 @@ function OneInputForm({label, type, submitText, submitFunction, id}) {
 }
 
 function LicenceForm({submitFunction, id}) {
-  // Needs to be completed
+  // TBC
   const call = (ev) => {
     ev.preventDefault()
     if (price === null || type === null) {
@@ -61,7 +61,8 @@ function GIRImageCard({id, state}) {
     const [isListed, setIsListed] = useState(false);
     const [price, setPrice] = useState(0);
     const [forLicence, setForLicence] = useState(false);
-    const [licencePrice, setLicencePrice] = useState(null);
+    const [licencePrice, setLicencePrice] = useState(0);
+    const [numLicences, setNumLicences] = useState(0);
     
     // eslint-disable-next-line react-hooks/exhaustive-deps
     async function initCard() {
@@ -76,8 +77,9 @@ function GIRImageCard({id, state}) {
           setIpfsAddr(cardDetails.ipfs);
           setIsApproved(await state.contracts.ImageOwnership.methods.isTokenApproved(id).call( {from: state.address }))
           setIsListed(await state.contracts.ImageOwnership.methods.isImageListed(id).call( {from: state.address }))
-          //setForLicence(await state.contracts.ImageOwnership.methods.isImageListedForLicensing(id).call({ from: state.address }))
-          //setLicencePrice(cardDetails.licencePrice)
+          setForLicence(await state.contracts.ImageOwnership.methods.isImageListedForLicence(id).call({ from: state.address }))
+          setLicencePrice(cardDetails.priceLicence)
+          setNumLicences(cardDetails.numLicences)
       } catch (err) {
         console.log("Error fetching details for card", id, err);
       }
@@ -91,10 +93,10 @@ function GIRImageCard({id, state}) {
       await state.contracts.ImageOwnership.methods.buyImage(id).send({ from: state.address, value: price})
       await initCard();
     }
-    // FUNCTION INCOMPLETE 
+     
     async function licenceImage() {
       console.log("licence")
-      await state.contracts.ImageOwnership.methods.buyLicense(id).send({ from: state.address, value: licencePrice })
+      await state.contracts.ImageOwnership.methods.buyLicence(id).send({ from: state.address, value: licencePrice })
       await initCard();
     }
     
@@ -116,9 +118,9 @@ function GIRImageCard({id, state}) {
       await initCard();
     }
     
-    async function sellLicence(id, price, type, time) {
+    async function sellLicence(id, price) {
       console.log("Listing for licence")
-      // await state.contracts.ImageOwnership.methods.listImageForLicensing(id, price, type, time).send({ from: state.address })
+      await state.contracts.ImageOwnership.methods.listImageLicence(id, price).send({ from: state.address })
       await initCard();
     }
     
@@ -162,14 +164,15 @@ function GIRImageCard({id, state}) {
             <Typography>Price: {isListed ? price : 'Not for sale'}</Typography>
             <Typography>owner: {owner.slice(0, 5)}...{owner.slice(owner.length-4, owner.length)}</Typography>
             <Typography>Licence Price: {licencePrice}</Typography>
-            <Typography>Licence Type: {licencePrice}</Typography>
-            <Typography>Licence Expiry: {licencePrice}</Typography>
+            <Typography>Num licences: {numLicences}</Typography>
             
           </CardContent>
+          {/*Functions if image does not belong to user */}
           {state.address !== owner && <CardActions>
             {isListed && <Button variant="contained" size="small" onClick={purchaseImage}>Purchase</Button>}
             {forLicence && <Button variant="outlined" size="small" onClick={licenceImage}>Licence</Button>}
           </CardActions>}
+          {/*Functions if image does belong to user */}
           {state.address === owner && <CardActions>
             {!isApproved ? <Button variant="contained" size = "small" onClick={approve} >Approve</Button>
             : <>
@@ -223,16 +226,18 @@ function GIRImageCard({id, state}) {
             {isApproved && 
             <>
             {forLicence ? 
-              <Button variant="outlined" size="small" onClick={unlistLicence}>Delicense</Button>
+              <Button variant="outlined" size="small" onClick={unlistLicence}>Unlist licencing</Button>
               :
               <BasicModal 
                 buttonType="outlined"
                 name="List licence"
-                title="Choose Licence options"
+                title="Choose Licence price"
                 Component={
-                  <LicenceForm
-                    submitFunction={sellLicence}
-                    id={id}
+                  <OneInputForm 
+                    label="Price" 
+                    type="number" 
+                    submitText="submit" 
+                    submitFunction={sellLicence} id={id} 
                   />
                 }
               />

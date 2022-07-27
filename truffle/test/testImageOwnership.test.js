@@ -207,4 +207,58 @@ contract("ImageOwnership", (accounts) => {
             assert(bal2, await web3.eth.getBalance(accountTwo) -  50, "Buyer did not spend eth")
         })
     })
+    
+    describe("Users can licence images", async () => {
+        // Img3 is owned by account 1
+        it("Unapproved image cannot be licenced by owner", async () => {
+            try {
+                await contract.listImageLicence(3, 0, {from: accountOne })
+            } catch (e){
+                assert(e, "Function failed to throw error")
+            }
+        })
+        it("Buyer cannot purchase licence for unlisted image", async () => {
+            try {
+                await contract.buyLicence(3, {from: accountTwo, value: 100})
+            } catch (e) {
+                assert(e, "Function failed to throw")
+            }
+        })
+        it("Seller can list image", async () => {
+            await contract.approve(accountOne, 3, { from: accountOne })
+            await contract.listImageLicence(3, 500, {from: accountOne})
+            assert(await contract.isImageListedForLicence(3, {from: accountOne}), "Image failed to be listed")
+        })
+        it("Buyer cannot purchase licence for less than listing price", async () => {
+            try {
+                await contract.buyLicence(3, {from: accountTwo, value: 0})
+            }  catch(e) {
+                assert(e, "Failed to throw, buyer purchased image for less than asking price")
+            }
+        })
+        
+        it("Non owner cannot delist image for licening", async () => {
+            try {
+                await contract.unlistImageLicence(3, { from:accountTwo})  
+            } catch (e) {
+                assert(e, "Function failed to fail")
+            }
+        })
+        
+        it("Seller can unlist image for licencing", async () => {
+            await contract.unlistImageLicence(3, { from:accountOne})
+            assert(await contract.isImageListedForLicence(3, {from: accountOne}) == false, "Image failed to be delisted")
+        })
+        
+        it("Buyer can purchase licence", async () => {
+            const bal1 = await web3.eth.getBalance(accountOne);
+            const bal2 = await web3.eth.getBalance(accountTwo);
+            await contract.listImageLicence(3, 500, {from: accountOne}) // relist image for licence
+            await contract.buyLicence(3, {from: accountTwo, value: 500})
+            const licenceDetails = await  contract.getImageDetails(3, {from: accountOne })  
+            assert(bal1, await web3.eth.getBalance(accountOne) + 500, "Seller was not compensated")
+            assert(bal2, await web3.eth.getBalance(accountTwo) - 500, "Buyer did not pay")
+            assert(licenceDetails.numLicences == 1, "Licence counter was not incremented")
+        })
+    })
 })

@@ -96,7 +96,7 @@ contract ImageOwnership is ImageFactory, ERC721X {
         images[_tokenId].forSale = true;
         images[_tokenId].price = _price;
     }
-    
+
     function listImageLicence(uint256 _tokenId, uint256 _price)
         external
         onlyOwnerOf(_tokenId)
@@ -117,15 +117,6 @@ contract ImageOwnership is ImageFactory, ERC721X {
         require(_price > 0, "New price must be greater than 0");
         images[_tokenId].price = _price;
     }
-    
-    function changeListingPriceLicence(uint256 _tokenId, uint256 _price)
-        public
-        onlyOwnerOf(_tokenId)
-        imageIsListedForLicence(_tokenId)
-    {
-        require(_price > 0, "New price must be greater than 0");
-        images[_tokenId].priceLicence = _price;
-    }
 
     /// @notice Unlist an image from the marketplace
     /// @param _tokenId Id of the image token
@@ -136,7 +127,7 @@ contract ImageOwnership is ImageFactory, ERC721X {
     {
         images[_tokenId].forSale = false;
     }
-    
+
     function unlistImageLicence(uint256 _tokenId)
         external
         onlyOwnerOf(_tokenId)
@@ -157,15 +148,21 @@ contract ImageOwnership is ImageFactory, ERC721X {
         _transfer(seller, buyer, _tokenId);
         emit ImageSold(_tokenId, image.title, seller, buyer, msg.value);
     }
-    
-    function buyLicence(uint256 _tokenId) public payable imageIsListedForLicence(_tokenId) {
-         Image storage image = images[_tokenId];
-         require(msg.value >= image.priceLicence, "Insufficient price to buy image");
-         address payable buyer = payable(msg.sender);
-         address payable seller = payable(imageToOwner[_tokenId]);
-         seller.transfer(msg.value);
-         image[_tokenId].licences[numOfLicences] = msg.sender;
-         image[_tokenId].numOfLicences++;
+
+    function buyLicence(uint256 _tokenId)
+        public
+        payable
+        imageIsListedForLicence(_tokenId)
+    {
+        Image storage image = images[_tokenId];
+        require(
+            msg.value >= image.priceLicence,
+            "Insufficient price to buy licence"
+        );
+        address payable seller = payable(imageToOwner[_tokenId]);
+        seller.transfer(msg.value);
+        image.licences.push(msg.sender);
+        image.numOfLicences++;
     }
 
     // helpers
@@ -180,7 +177,9 @@ contract ImageOwnership is ImageFactory, ERC721X {
             string memory description,
             bool forSale,
             uint256 price,
-            string memory ipfs
+            string memory ipfs,
+            uint256 priceLicence,
+            uint256 numLicences
         )
     {
         Image memory retImg = images[_tokenId];
@@ -190,7 +189,9 @@ contract ImageOwnership is ImageFactory, ERC721X {
             retImg.description,
             forSale,
             retImg.price,
-            retImg.ipfs
+            retImg.ipfs,
+            retImg.priceLicence,
+            retImg.numOfLicences
         );
     }
 
@@ -206,8 +207,12 @@ contract ImageOwnership is ImageFactory, ERC721X {
     function isImageListed(uint256 _tokenId) public view returns (bool) {
         return images[_tokenId].forSale == true;
     }
-    
-    function isImageListedForLicence(uint256 _tokenId) public view returns (bool) {
+
+    function isImageListedForLicence(uint256 _tokenId)
+        public
+        view
+        returns (bool)
+    {
         return images[_tokenId].forLicence;
     }
 
@@ -231,9 +236,12 @@ contract ImageOwnership is ImageFactory, ERC721X {
         require(isImageListed(_imageId), "Image is not for sale");
         _;
     }
-    
+
     modifier imageIsListedForLicence(uint256 _imageId) {
-        require(isImageListedForLicence(_imageId), "Image is not for licencing");
+        require(
+            isImageListedForLicence(_imageId),
+            "Image is not for licencing"
+        );
+        _;
     }
-    
 }
