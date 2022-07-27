@@ -13,6 +13,11 @@ contract ImageFactory is Ownable {
         string ipfs,
         uint32 creationTime
     );
+    
+    struct Licence {
+        address owner;
+        enum licenceType {RF, RR, RM};              //"royalty-free"; "rights-ready"; "rights-managed" - https://www.gettyimages.de/eula#:~:text=Getty%20Images%20offers%20three%20types,the%20content%20is%20re%2Dused, see: bullet 1
+    }
 
     struct Image {
         string title;
@@ -22,9 +27,12 @@ contract ImageFactory is Ownable {
         uint32 creationTime;
         bool forSale;
         bool forLicence;
+        bool forRF;
+        bool forRR;
+        bool forRM;
         uint256 price; // price is measured in wei
         uint256 priceLicence;
-        address[] licences;
+        Licence [] licences;                        //changed array to array of licence struct
         uint256 numOfLicences;
     }
 
