@@ -13,7 +13,7 @@ import Album from "./components/Album";
 
 // Contracts
 import ImageOwnership from "./contracts/ImageOwnership.json";
-const contractAddr = "0xb7b7251221aDCa2FF2ab3e970C0a6232c5939e77";
+const contractAddr = "0xc7f308c906A018cA8F1DA05017DFbdAc1F34693a";
 
 function App() {
   const [state, setState] = useState({
@@ -145,7 +145,7 @@ function App() {
             setState={setState}
           />
         </main>
-        {web3Ready && <Album web3State={state}/>}
+        {web3Ready && <Album web3State={state} setState={setState}/>}
       </Container>
     </ThemeProvider>
   );

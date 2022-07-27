@@ -97,22 +97,30 @@ contract ImageOwnership is ImageFactory, ERC721X {
         images[_tokenId].price = _price;
     }
 
-    function listImageLicence(uint256 _tokenId, uint256 _price, uint256 licencetype)            //for licencetype - 0 = RF; 1 = RR; 2 = RM
+    function listImageLicence(
+        uint256 _tokenId,
+        uint256 _price,
+        uint256 _licencetype //for licencetype - 0 = RF; 1 = RR; 2 = RM
+    )
         external
         onlyOwnerOf(_tokenId)
         imageIsApproved(_tokenId)
         imageIsUnlisted(_tokenId) //not allow listing when already listed
     {
+        require(
+            _licencetype == 0 || _licencetype == 1 || _licencetype == 2,
+            "Invalid licence type"
+        );
         images[_tokenId].forLicence = true;
         images[_tokenId].priceLicence = _price;
-        if (licencetype == 0) {
-            images[_tokenId].forRF = true;
+        if (_licencetype == 0) {
+            images[_tokenId].licenceType = LicenceType.RF;
         }
-        if (licencetype == 1) {
-            images[_tokenId].forRR = true;
+        if (_licencetype == 1) {
+            images[_tokenId].licenceType = LicenceType.RR;
         }
-        if (licencetype == 2) {
-            images[_tokenId].forRM = true;
+        if (_licencetype == 2) {
+            images[_tokenId].licenceType = LicenceType.RM;
         }
     }
 
@@ -138,20 +146,11 @@ contract ImageOwnership is ImageFactory, ERC721X {
         images[_tokenId].forSale = false;
     }
 
-    function unlistImageLicence(uint256 _tokenId, uint licenceType)
+    function unlistImageLicence(uint256 _tokenId)
         external
         onlyOwnerOf(_tokenId)
         imageIsListedForLicence(_tokenId)
     {
-        if (licencetype == 0) {
-            images[_tokenId].forRF = false;
-        }
-        if (licencetype == 1) {
-            images[_tokenId].forRR = false;
-        }
-        if (licencetype == 2) {
-            images[_tokenId].forRM = false;
-        }
         images[_tokenId].forLicence = false;
     }
 
@@ -168,7 +167,7 @@ contract ImageOwnership is ImageFactory, ERC721X {
         emit ImageSold(_tokenId, image.title, seller, buyer, msg.value);
     }
 
-    function buyLicence(uint256 _tokenId, uint256 licenceType)
+    function buyLicence(uint256 _tokenId)
         public
         payable
         imageIsListedForLicence(_tokenId)
@@ -180,16 +179,8 @@ contract ImageOwnership is ImageFactory, ERC721X {
         );
         address payable seller = payable(imageToOwner[_tokenId]);
         seller.transfer(msg.value);
-        if (licenceType = 0) {
-            Licence newLicence = Licence(msg.sender, RF);
-        }
-        if (licenceType = 1) {
-            Licence newLicence = Licence(msg.sender, RR);
-        }
-        if (licenceType = 2) {
-            Licence newLicence = Licence(msg.sender, RM);
-        }
-        image.licences.push(newLicence);
+        image.licencesTypes.push(image.licenceType);
+        image.licencesOwners.push(msg.sender);
         image.numOfLicences++;
     }
 
@@ -207,7 +198,8 @@ contract ImageOwnership is ImageFactory, ERC721X {
             uint256 price,
             string memory ipfs,
             uint256 priceLicence,
-            uint256 numLicences
+            uint256 numLicences,
+            LicenceType licenceType
         )
     {
         Image memory retImg = images[_tokenId];
@@ -219,7 +211,8 @@ contract ImageOwnership is ImageFactory, ERC721X {
             retImg.price,
             retImg.ipfs,
             retImg.priceLicence,
-            retImg.numOfLicences
+            retImg.numOfLicences,
+            retImg.licenceType
         );
     }
 
@@ -242,6 +235,18 @@ contract ImageOwnership is ImageFactory, ERC721X {
         returns (bool)
     {
         return images[_tokenId].forLicence;
+    }
+
+    /// @notice Given an imageId checks if the message sender is a licencee
+    function isAddrLicencingImage(uint256 _imageId) public view returns (bool) {
+        Image storage image = images[_imageId];
+        uint256 numLicences = image.numOfLicences;
+        for (uint256 i = 0; i < numLicences; ++i) {
+            if (image.licencesOwners[i] == msg.sender) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /// @notice Only the owner of the token can call the function
@@ -272,12 +277,13 @@ contract ImageOwnership is ImageFactory, ERC721X {
         );
         _;
     }
-    
-    modifier imageIsUnlisted(uint256 _tokenId) {                                        //modifier to check if image is already listed for licence
+
+    modifier imageIsUnlisted(uint256 _tokenId) {
+        //modifier to check if image is already listed for licence
         require(
-            !isImageListedforLicence(_imageId), "Image is already listed for licencing"
+            !isImageListedForLicence(_tokenId),
+            "Image is already listed for licencing"
         );
         _;
     }
-    
 }

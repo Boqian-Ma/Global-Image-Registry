@@ -28,11 +28,10 @@ function LicenceForm({submitFunction, id}) {
     if (price === null || type === null) {
       return;
     }
-    submitFunction();
+    submitFunction(id, price, type);
   }
   const [price, setPrice] = useState(null)
   const [type, setType] = useState(null)
-  console.log(type)
   return (
     <div>
       <div>
@@ -42,17 +41,16 @@ function LicenceForm({submitFunction, id}) {
       </div>
       <FormLabel>Licence Type</FormLabel>
       <RadioGroup onChange={(ev) => setType(ev.target.value)}>
-        <FormControlLabel value="1" control={<Radio size="small" />} label="1"/>
-        <FormControlLabel value="2" control={<Radio size="small" />} label="2"/>
-        <FormControlLabel value="3" control={<Radio size="small" />} label="3"/>
-        <FormControlLabel value="4" control={<Radio size="small" />} label="4"/>
+        <FormControlLabel value="0" control={<Radio size="small" />} label="RF"/>
+        <FormControlLabel value="1" control={<Radio size="small" />} label="RR"/>
+        <FormControlLabel value="2" control={<Radio size="small" />} label="RM"/>
       </RadioGroup>
      <Button variant="contained" onClick={ev => call(ev)}>Submit</Button> 
     </div>
   )
 }
 
-function GIRImageCard({id, state}) {
+function GIRImageCard({id, state, setState}) {
     const [title, setTitle] = useState('');
     const [desc, setDesc] = useState('');
     const [ipfsAddr, setIpfsAddr] = useState(null);
@@ -63,12 +61,26 @@ function GIRImageCard({id, state}) {
     const [forLicence, setForLicence] = useState(false);
     const [licencePrice, setLicencePrice] = useState(0);
     const [numLicences, setNumLicences] = useState(0);
+    const [licenceType, setLicenceType] = useState(0);
+    
+    const forceRefresh = () => {
+      setState(prev => ({
+        ...prev,
+        modified: prev.modified++
+      }))
+    }
+    const getLicenceType = (number) => {
+      if (number == 0) return "RF";
+      if (number == 1) return "RR";
+      if (number == 2) return "RM"
+    }
     
     // eslint-disable-next-line react-hooks/exhaustive-deps
     async function initCard() {
         if (!state.address) return 
         try {
           const cardDetails = await state.contracts.ImageOwnership.methods.getImageDetails(id).call({ from: state.address });
+          //console.log(cardDetails)
           setTitle(cardDetails.title);
           setDesc(cardDetails.description)
           setPrice(cardDetails.price)
@@ -80,6 +92,7 @@ function GIRImageCard({id, state}) {
           setForLicence(await state.contracts.ImageOwnership.methods.isImageListedForLicence(id).call({ from: state.address }))
           setLicencePrice(cardDetails.priceLicence)
           setNumLicences(cardDetails.numLicences)
+          setLicenceType(getLicenceType(cardDetails.licenceType))
       } catch (err) {
         console.log("Error fetching details for card", id, err);
       }
@@ -98,6 +111,7 @@ function GIRImageCard({id, state}) {
       console.log("licence")
       await state.contracts.ImageOwnership.methods.buyLicence(id).send({ from: state.address, value: licencePrice })
       await initCard();
+      forceRefresh()
     }
     
     async function approve() {
@@ -111,6 +125,7 @@ function GIRImageCard({id, state}) {
       // signature transfer(address from, address to, uint256 tokenId)
       await state.contracts.ImageOwnership.methods.transferFrom(state.address, input, id).send({ from: state.address })
       await initCard();
+      forceRefresh()
     }
     async function sell(id, input) {
       console.log("sell")
@@ -118,15 +133,15 @@ function GIRImageCard({id, state}) {
       await initCard();
     }
     
-    async function sellLicence(id, price) {
+    async function sellLicence(id, price, type) {
       console.log("Listing for licence")
-      await state.contracts.ImageOwnership.methods.listImageLicence(id, price).send({ from: state.address })
+      await state.contracts.ImageOwnership.methods.listImageLicence(id, price, type).send({ from: state.address })
       await initCard();
     }
     
-    async function unlistLicence(id) {
+    async function unlistLicence() {
       console.log("Unlist licence")
-      await state.contracts.ImageOwnership.methods.unlistImageForLicensing(id).call({ from: state.address })
+      await state.contracts.ImageOwnership.methods.unlistImageLicence(id).send({ from: state.address })
       await initCard();
     }
     
@@ -142,7 +157,6 @@ function GIRImageCard({id, state}) {
       await state.contracts.ImageOwnership.methods.unlistImage(id).send({ from: state.address })
       await initCard();
     }
-    
     return (
         <Card
           sx={{
@@ -164,6 +178,7 @@ function GIRImageCard({id, state}) {
             <Typography>Price: {isListed ? price : 'Not for sale'}</Typography>
             <Typography>owner: {owner.slice(0, 5)}...{owner.slice(owner.length-4, owner.length)}</Typography>
             <Typography>Licence Price: {licencePrice}</Typography>
+            <Typography>{forLicence ? `Licence Type: ${licenceType}` : "Not listed for licencing"}</Typography>
             <Typography>Num licences: {numLicences}</Typography>
             
           </CardContent>
@@ -233,10 +248,7 @@ function GIRImageCard({id, state}) {
                 name="List licence"
                 title="Choose Licence price"
                 Component={
-                  <OneInputForm 
-                    label="Price" 
-                    type="number" 
-                    submitText="submit" 
+                  <LicenceForm 
                     submitFunction={sellLicence} id={id} 
                   />
                 }

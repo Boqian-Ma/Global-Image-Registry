@@ -13,10 +13,11 @@ contract ImageFactory is Ownable {
         string ipfs,
         uint32 creationTime
     );
-    
-    struct Licence {
-        address owner;
-        enum licenceType {RF, RR, RM};              //"royalty-free"; "rights-ready"; "rights-managed" - https://www.gettyimages.de/eula#:~:text=Getty%20Images%20offers%20three%20types,the%20content%20is%20re%2Dused, see: bullet 1
+
+    enum LicenceType {
+        RF,
+        RR,
+        RM
     }
 
     struct Image {
@@ -27,13 +28,12 @@ contract ImageFactory is Ownable {
         uint32 creationTime;
         bool forSale;
         bool forLicence;
-        bool forRF;
-        bool forRR;
-        bool forRM;
+        LicenceType licenceType;
         uint256 price; // price is measured in wei
         uint256 priceLicence;
-        Licence [] licences;                        //changed array to array of licence struct
         uint256 numOfLicences;
+        LicenceType[] licencesTypes;
+        address[] licencesOwners;
     }
 
     struct ImageIndex {
@@ -58,22 +58,24 @@ contract ImageFactory is Ownable {
         string memory _ipfs
     ) internal {
         uint32 creationTime = uint32(block.timestamp);
-        address[] memory licenceAddress;
-        images.push(
-            Image(
-                _title,
-                _description,
-                _hash,
-                _ipfs,
-                creationTime,
-                false,
-                false,
-                0,
-                0,
-                licenceAddress,
-                0
-            )
+        LicenceType[] memory licenceTypes;
+        address[] memory licenceAddresses;
+        Image memory newImage = Image(
+            _title,
+            _description,
+            _hash,
+            _ipfs,
+            creationTime,
+            false,
+            false,
+            LicenceType.RF,
+            0,
+            0,
+            0,
+            licenceTypes,
+            licenceAddresses
         );
+        images.push(newImage);
 
         emit NewImage(
             numImages,
