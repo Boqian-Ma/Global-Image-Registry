@@ -13,7 +13,7 @@ import Album from "./components/Album";
 
 // Contracts
 import ImageOwnership from "./contracts/ImageOwnership.json";
-const contractAddr = "0xc7f308c906A018cA8F1DA05017DFbdAc1F34693a";
+const contractAddr = "0x3e0e69D9C89b7B47362C6b888eF0911349DC58EA";
 
 function App() {
   const [state, setState] = useState({
@@ -61,7 +61,7 @@ function App() {
       await window.ethereum
         .request({ method: "eth_requestAccounts" })
         .then((res) => {
-          // Return the address of the wallet 
+          // Return the address of the wallet
           console.log(typeof res[0]);
           setState((prevState) => ({
             ...prevState,
@@ -73,7 +73,7 @@ function App() {
   }, []);
 
   useEffect(() => {
-    // Setup listener for when user changes metamask address 
+    // Setup listener for when user changes metamask address
     async function listenForMMChange() {
       window.ethereum.on("accountsChanged", async () => {
         const accounts = await window.ethereum.request({
@@ -132,11 +132,7 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Container maxWidth="lg">
-        <Header
-          loginState={state.address}
-          state={state}
-          setState={setState}
-        />
+        <Header loginState={state.address} state={state} setState={setState} />
         <main>
           <MainFeaturedPost
             post={mainFeaturedPost}
@@ -145,7 +141,7 @@ function App() {
             setState={setState}
           />
         </main>
-        {web3Ready && <Album web3State={state} setState={setState}/>}
+        {web3Ready && <Album web3State={state} setState={setState} />}
       </Container>
     </ThemeProvider>
   );

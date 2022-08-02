@@ -242,7 +242,7 @@ contract ImageOwnership is ImageFactory, ERC721X {
     }
 
     /// @notice Check image is listed for licence
-    /// @param _imageId Id of the image token
+    /// @param _tokenId Id of the image token
     /// @return bool indicating whether image is listed
     function isImageListedForLicence(uint256 _tokenId)
         public
@@ -298,7 +298,7 @@ contract ImageOwnership is ImageFactory, ERC721X {
     }
 
     /// @notice Image must be unlisted
-    /// @param _imageId Id of the same image
+    /// @param _tokenId Id of the same image
     modifier imageIsUnlisted(uint256 _tokenId) {
         require(
             !isImageListedForLicence(_tokenId),
